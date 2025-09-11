@@ -20,6 +20,7 @@ import {
 import { Checkbox } from '@/components/ui/checkbox'
 import { Search, Filter, X } from 'lucide-react'
 import Link from 'next/link'
+import { useTranslations } from 'next-intl'
 
 const RARITIES = ['COMMON', 'UNCOMMON', 'RARE', 'EPIC', 'LEGENDARY', 'MYTHICAL']
 const SEQUENCES = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
@@ -27,6 +28,9 @@ const SEQUENCES = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
 function ItemsPageContent() {
     const searchParams = useSearchParams()
     const initialSearch = searchParams.get('search') || ''
+    const t = useTranslations('items')
+    const tCommon = useTranslations('common')
+    const tRarity = useTranslations('rarity')
 
     const [search, setSearch] = useState(initialSearch)
     const [selectedPathways, setSelectedPathways] = useState<number[]>([])
@@ -109,9 +113,9 @@ function ItemsPageContent() {
     return (
         <div className="container mx-auto px-4 py-8">
             <div className="flex justify-between items-center mb-6">
-                <h1 className="text-3xl font-bold">Mysterious Items</h1>
+                <h1 className="text-3xl font-bold">{t('title')}</h1>
                 <Link href="/items/new">
-                    <Button>Add New Item</Button>
+                    <Button>{t('addNew')}</Button>
                 </Link>
             </div>
 
@@ -120,23 +124,23 @@ function ItemsPageContent() {
                     <Card>
                         <CardHeader>
                             <div className="flex justify-between items-center">
-                                <CardTitle className="text-lg">Filters</CardTitle>
+                                <CardTitle className="text-lg">{t('filters')}</CardTitle>
                                 {hasActiveFilters && (
                                     <Button variant="ghost" size="sm" onClick={resetFilters}>
                                         <X className="h-4 w-4 mr-1" />
-                                        Clear
+                                        {t('clear')}
                                     </Button>
                                 )}
                             </div>
                         </CardHeader>
                         <CardContent className="space-y-6">
                             <div className="space-y-2">
-                                <Label>Search</Label>
+                                <Label>{tCommon('search')}</Label>
                                 <div className="relative">
                                     <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
                                     <Input
                                         type="text"
-                                        placeholder="Search items..."
+                                        placeholder={t('searchPlaceholder')}
                                         value={search}
                                         onChange={(e) => setSearch(e.target.value)}
                                         className="pl-10"
@@ -145,23 +149,23 @@ function ItemsPageContent() {
                             </div>
 
                             <div className="space-y-2">
-                                <Label>Sort By</Label>
+                                <Label>{t('sortBy')}</Label>
                                 <Select value={sortBy} onValueChange={(value: any) => setSortBy(value)}>
                                     <SelectTrigger>
                                         <SelectValue />
                                     </SelectTrigger>
                                     <SelectContent>
-                                        <SelectItem value="newest">Newest First</SelectItem>
-                                        <SelectItem value="oldest">Oldest First</SelectItem>
-                                        <SelectItem value="name">Name (A-Z)</SelectItem>
-                                        <SelectItem value="rarity">Rarity (High to Low)</SelectItem>
+                                        <SelectItem value="newest">{t('newest')}</SelectItem>
+                                        <SelectItem value="oldest">{t('oldest')}</SelectItem>
+                                        <SelectItem value="name">{t('nameAZ')}</SelectItem>
+                                        <SelectItem value="rarity">{t('rarityHigh')}</SelectItem>
                                     </SelectContent>
                                 </Select>
                             </div>
 
                             {pathways && pathways.length > 0 && (
                                 <div className="space-y-2">
-                                    <Label>Pathways</Label>
+                                    <Label>{t('pathways')}</Label>
                                     <div className="space-y-2 max-h-48 overflow-y-auto">
                                         {pathways.map((pathway) => (
                                             <div key={pathway.id} className="flex items-center space-x-2">
@@ -190,7 +194,7 @@ function ItemsPageContent() {
 
                             {types && types.length > 0 && (
                                 <div className="space-y-2">
-                                    <Label>Types</Label>
+                                    <Label>{t('types')}</Label>
                                     <div className="space-y-2">
                                         {types.map((type) => (
                                             <div key={type.id} className="flex items-center space-x-2">
@@ -218,7 +222,7 @@ function ItemsPageContent() {
                             )}
 
                             <div className="space-y-2">
-                                <Label>Rarity</Label>
+                                <Label>{t('rarity')}</Label>
                                 <div className="space-y-2">
                                     {RARITIES.map((rarity) => (
                                         <div key={rarity} className="flex items-center space-x-2">
@@ -237,7 +241,7 @@ function ItemsPageContent() {
                                                 htmlFor={`rarity-${rarity}`}
                                                 className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
                                             >
-                                                {rarity}
+                                                {tRarity(rarity.toLowerCase())}
                                             </label>
                                         </div>
                                     ))}
@@ -282,7 +286,7 @@ function ItemsPageContent() {
                             onClick={() => setShowFilters(!showFilters)}
                         >
                             <Filter className="h-4 w-4 mr-2" />
-                            {showFilters ? 'Hide' : 'Show'} Filters
+                            {showFilters ? t('hideFilters') : t('showFilters')}
                         </Button>
                     </div>
 
@@ -309,10 +313,10 @@ function ItemsPageContent() {
                     ) : (
                         <Card>
                             <CardContent className="text-center py-12">
-                                <p className="text-muted-foreground">No items found matching your criteria.</p>
+                                <p className="text-muted-foreground">{t('noItemsFound')}</p>
                                 {hasActiveFilters && (
                                     <Button variant="outline" className="mt-4" onClick={resetFilters}>
-                                        Clear Filters
+                                        {t('clearFilters')}
                                     </Button>
                                 )}
                             </CardContent>

@@ -9,16 +9,18 @@ import {Button} from '@/components/ui/button'
 import {BookOpen, Calendar, MessageSquare, Users} from 'lucide-react'
 import {formatDate} from '@/lib/utils'
 import Link from 'next/link'
+import { useTranslations } from 'next-intl'
 
 export default function ResearchersPage() {
     const {data: researchers, isLoading} = useResearchers()
+    const t = useTranslations('researchers')
 
     return (
         <div className="container mx-auto px-4 py-8">
             <div className="mb-6">
-                <h1 className="text-3xl font-bold">Researchers</h1>
+                <h1 className="text-3xl font-bold">{t('title')}</h1>
                 <p className="text-muted-foreground mt-2">
-                    Meet the investigators uncovering mysteries
+                    {t('subtitle')}
                 </p>
             </div>
 
@@ -40,7 +42,7 @@ export default function ResearchersPage() {
                 <Card>
                     <CardContent className="text-center py-12">
                         <Users className="h-12 w-12 mx-auto mb-4 text-muted-foreground"/>
-                        <p className="text-muted-foreground">No researchers yet</p>
+                        <p className="text-muted-foreground">{t('noResearchers')}</p>
                     </CardContent>
                 </Card>
             )}
@@ -51,6 +53,7 @@ export default function ResearchersPage() {
 function ResearcherCard({researcher}: { researcher: any }) {
     const {data: items} = useItemsByResearcher(researcher.id)
     const {data: comments} = useCommentsByResearcher(researcher.id)
+    const t = useTranslations('researchers')
 
     return (
         <Card className="hover:shadow-lg transition-all">
@@ -65,7 +68,7 @@ function ResearcherCard({researcher}: { researcher: any }) {
                         <CardTitle>{researcher.nickname}</CardTitle>
                         <CardDescription className="flex items-center gap-1">
                             <Calendar className="h-3 w-3"/>
-                            Joined {formatDate(researcher.createdAt)}
+                            {t('joined')} {formatDate(researcher.createdAt)}
                         </CardDescription>
                     </div>
                 </div>

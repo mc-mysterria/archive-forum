@@ -3,12 +3,21 @@
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { ResearcherSelector } from '@/components/researcher/researcher-selector'
-import { BookOpen, Compass, Package, Users, Plus } from 'lucide-react'
+import { BookOpen, Compass, Package, Users, Plus, Globe } from 'lucide-react'
 import { usePathname } from 'next/navigation'
 import { cn } from '@/lib/utils'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
+import { useRouter } from 'next/navigation'
 
-export function Header() {
+export function HeaderDefault() {
     const pathname = usePathname()
+    const router = useRouter()
 
     const navigation = [
         { name: 'Items', href: '/items', icon: BookOpen },
@@ -16,6 +25,13 @@ export function Header() {
         { name: 'Types', href: '/types', icon: Package },
         { name: 'Researchers', href: '/researchers', icon: Users },
     ]
+
+    const handleLanguageChange = (newLocale: string) => {
+        if (newLocale === 'uk') {
+            router.push(`/uk${pathname}`)
+        }
+        // For 'en', we stay on the current route since it's the default
+    }
 
     return (
         <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -50,6 +66,18 @@ export function Header() {
                     </div>
 
                     <div className="flex items-center gap-4">
+                        <Select value="en" onValueChange={handleLanguageChange}>
+                            <SelectTrigger className="w-[140px]">
+                                <div className="flex items-center gap-2">
+                                    <Globe className="h-4 w-4" />
+                                    <SelectValue />
+                                </div>
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="en">English</SelectItem>
+                                <SelectItem value="uk">Українська</SelectItem>
+                            </SelectContent>
+                        </Select>
                         <ResearcherSelector />
                         <Link href="/items/new">
                             <Button size="sm">

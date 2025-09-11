@@ -10,7 +10,8 @@ import { Search, BookOpen, Users, Compass } from 'lucide-react'
 import Link from 'next/link'
 import { useState } from 'react'
 import { Input } from '@/components/ui/input'
-import { useRouter } from 'next/navigation'
+import { useRouter, useParams } from 'next/navigation'
+import { useTranslations } from 'next-intl'
 
 export default function HomePage() {
     const { data: items, isLoading: itemsLoading } = useItems()
@@ -18,13 +19,21 @@ export default function HomePage() {
     const { data: pathways } = usePathways()
     const [searchQuery, setSearchQuery] = useState('')
     const router = useRouter()
+    const params = useParams()
+    const locale = params.locale as string
+    const t = useTranslations('home')
+    const tCommon = useTranslations('common')
 
     const recentItems = items?.slice(0, 6) || []
+
+    const getLocalizedHref = (href: string) => {
+        return locale && locale !== 'en' ? `/${locale}${href}` : href
+    }
 
     const handleSearch = (e: React.FormEvent) => {
         e.preventDefault()
         if (searchQuery.trim()) {
-            router.push(`/items?search=${encodeURIComponent(searchQuery)}`)
+            router.push(getLocalizedHref(`/items?search=${encodeURIComponent(searchQuery)}`))
         }
     }
 
@@ -32,10 +41,10 @@ export default function HomePage() {
         <div className="container mx-auto px-4 py-8">
             <div className="text-center mb-12">
                 <h1 className="text-5xl font-bold mb-4 bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
-                    Mysterria Archive
+                    {t('title')}
                 </h1>
                 <p className="text-xl text-muted-foreground mb-8">
-                    Discover and catalog the mysteries of the Lord of The Mysteries world
+                    {t('subtitle')}
                 </p>
 
                 <form onSubmit={handleSearch} className="max-w-2xl mx-auto flex gap-2">
@@ -43,52 +52,52 @@ export default function HomePage() {
                         <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
                         <Input
                             type="text"
-                            placeholder="Search for items, pathways, or mysteries..."
+                            placeholder={t('searchPlaceholder')}
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
                             className="pl-10"
                         />
                     </div>
-                    <Button type="submit">Search</Button>
+                    <Button type="submit">{tCommon('search')}</Button>
                 </form>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
                 <Card>
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                        <CardTitle className="text-sm font-medium">Total Items</CardTitle>
+                        <CardTitle className="text-sm font-medium">{t('totalItems')}</CardTitle>
                         <BookOpen className="h-4 w-4 text-muted-foreground" />
                     </CardHeader>
                     <CardContent>
                         <div className="text-2xl font-bold">{items?.length || 0}</div>
                         <p className="text-xs text-muted-foreground">
-                            Mysterious artifacts cataloged
+                            {t('totalItemsDesc')}
                         </p>
                     </CardContent>
                 </Card>
 
                 <Card>
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                        <CardTitle className="text-sm font-medium">Researchers</CardTitle>
+                        <CardTitle className="text-sm font-medium">{t('researchers')}</CardTitle>
                         <Users className="h-4 w-4 text-muted-foreground" />
                     </CardHeader>
                     <CardContent>
                         <div className="text-2xl font-bold">{researchers?.length || 0}</div>
                         <p className="text-xs text-muted-foreground">
-                            Active investigators
+                            {t('researchersDesc')}
                         </p>
                     </CardContent>
                 </Card>
 
                 <Card>
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                        <CardTitle className="text-sm font-medium">Pathways</CardTitle>
+                        <CardTitle className="text-sm font-medium">{t('pathways')}</CardTitle>
                         <Compass className="h-4 w-4 text-muted-foreground" />
                     </CardHeader>
                     <CardContent>
                         <div className="text-2xl font-bold">{pathways?.length || 0}</div>
                         <p className="text-xs text-muted-foreground">
-                            Beyonder sequences discovered
+                            {t('pathwaysDesc')}
                         </p>
                     </CardContent>
                 </Card>
@@ -96,9 +105,9 @@ export default function HomePage() {
 
             <div className="mb-8">
                 <div className="flex justify-between items-center mb-6">
-                    <h2 className="text-3xl font-bold">Recent Discoveries</h2>
-                    <Link href="/items">
-                        <Button variant="outline">View All Items</Button>
+                    <h2 className="text-3xl font-bold">{t('recentDiscoveries')}</h2>
+                    <Link href={getLocalizedHref('/items')}>
+                        <Button variant="outline">{t('viewAllItems')}</Button>
                     </Link>
                 </div>
 
@@ -119,9 +128,9 @@ export default function HomePage() {
                 ) : (
                     <Card>
                         <CardContent className="text-center py-12">
-                            <p className="text-muted-foreground">No items discovered yet.</p>
-                            <Link href="/items/new">
-                                <Button className="mt-4">Create First Item</Button>
+                            <p className="text-muted-foreground">{t('noItemsYet')}</p>
+                            <Link href={getLocalizedHref('/items/new')}>
+                                <Button className="mt-4">{t('createFirstItem')}</Button>
                             </Link>
                         </CardContent>
                     </Card>
@@ -131,42 +140,42 @@ export default function HomePage() {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <Card className="hover:shadow-lg transition-shadow">
                     <CardHeader>
-                        <CardTitle>Explore Pathways</CardTitle>
+                        <CardTitle>{t('explorePathways')}</CardTitle>
                     </CardHeader>
                     <CardContent>
                         <p className="text-muted-foreground mb-4">
-                            Discover the 22 Pathways of the Beyonder world
+                            {t('explorePathwaysDesc')}
                         </p>
-                        <Link href="/pathways">
-                            <Button variant="secondary" className="w-full">Browse Pathways</Button>
+                        <Link href={getLocalizedHref('/pathways')}>
+                            <Button variant="secondary" className="w-full">{t('browsePathways')}</Button>
                         </Link>
                     </CardContent>
                 </Card>
 
                 <Card className="hover:shadow-lg transition-shadow">
                     <CardHeader>
-                        <CardTitle>Item Types</CardTitle>
+                        <CardTitle>{t('itemTypes')}</CardTitle>
                     </CardHeader>
                     <CardContent>
                         <p className="text-muted-foreground mb-4">
-                            Browse ingredients, artifacts, mobs, and structures
+                            {t('itemTypesDesc')}
                         </p>
-                        <Link href="/types">
-                            <Button variant="secondary" className="w-full">View Types</Button>
+                        <Link href={getLocalizedHref('/types')}>
+                            <Button variant="secondary" className="w-full">{t('viewTypes')}</Button>
                         </Link>
                     </CardContent>
                 </Card>
 
                 <Card className="hover:shadow-lg transition-shadow">
                     <CardHeader>
-                        <CardTitle>Join Research</CardTitle>
+                        <CardTitle>{t('joinResearch')}</CardTitle>
                     </CardHeader>
                     <CardContent>
                         <p className="text-muted-foreground mb-4">
-                            Contribute your discoveries to the archive
+                            {t('joinResearchDesc')}
                         </p>
-                        <Link href="/items/new">
-                            <Button className="w-full">Add New Item</Button>
+                        <Link href={getLocalizedHref('/items/new')}>
+                            <Button className="w-full">{t('addNewItem')}</Button>
                         </Link>
                     </CardContent>
                 </Card>
