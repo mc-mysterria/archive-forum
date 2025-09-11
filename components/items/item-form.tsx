@@ -46,10 +46,10 @@ export function ItemForm({
         name: defaultValues.name || '',
         description: defaultValues.description || '',
         purpose: defaultValues.purpose || '',
-        pathwayId: defaultValues.pathwayId?.toString() || '',
-        typeId: defaultValues.typeId?.toString() || '',
-        sequenceNumber: defaultValues.sequenceNumber?.toString() || '',
-        rarity: defaultValues.rarity || '',
+        pathwayId: defaultValues.pathwayId?.toString() || 'none',
+        typeId: defaultValues.typeId?.toString() || 'none',
+        sequenceNumber: defaultValues.sequenceNumber?.toString() || 'none',
+        rarity: defaultValues.rarity || 'none',
     })
 
     const handleSubmit = (e: React.FormEvent) => {
@@ -58,10 +58,10 @@ export function ItemForm({
             name: formData.name,
             description: formData.description || undefined,
             purpose: formData.purpose || undefined,
-            pathwayId: formData.pathwayId ? parseInt(formData.pathwayId) : undefined,
-            typeId: formData.typeId ? parseInt(formData.typeId) : undefined,
-            sequenceNumber: formData.sequenceNumber ? parseInt(formData.sequenceNumber) : undefined,
-            rarity: formData.rarity || undefined,
+            pathwayId: formData.pathwayId !== 'none' ? parseInt(formData.pathwayId) : undefined,
+            typeId: formData.typeId !== 'none' ? parseInt(formData.typeId) : undefined,
+            sequenceNumber: formData.sequenceNumber !== 'none' ? parseInt(formData.sequenceNumber) : undefined,
+            rarity: formData.rarity !== 'none' ? formData.rarity : undefined,
         }
         onSubmit(data)
     }
@@ -124,7 +124,7 @@ export function ItemForm({
                                     <SelectValue placeholder="Select pathway" />
                                 </SelectTrigger>
                                 <SelectContent>
-                                    <SelectItem value="">None</SelectItem>
+                                    <SelectItem value="none">None</SelectItem>
                                     {pathways.map((pathway) => (
                                         <SelectItem key={pathway.id} value={pathway.id.toString()}>
                                             {pathway.name}
@@ -144,7 +144,7 @@ export function ItemForm({
                                     <SelectValue placeholder="Select type" />
                                 </SelectTrigger>
                                 <SelectContent>
-                                    <SelectItem value="">None</SelectItem>
+                                    <SelectItem value="none">None</SelectItem>
                                     {types.map((type) => (
                                         <SelectItem key={type.id} value={type.id.toString()}>
                                             {type.name}
@@ -166,7 +166,7 @@ export function ItemForm({
                                     <SelectValue placeholder="Select sequence" />
                                 </SelectTrigger>
                                 <SelectContent>
-                                    <SelectItem value="">None</SelectItem>
+                                    <SelectItem value="none">None</SelectItem>
                                     {SEQUENCES.map((seq) => (
                                         <SelectItem key={seq} value={seq.toString()}>
                                             Sequence {seq}
@@ -186,7 +186,7 @@ export function ItemForm({
                                     <SelectValue placeholder="Select rarity" />
                                 </SelectTrigger>
                                 <SelectContent>
-                                    <SelectItem value="">None</SelectItem>
+                                    <SelectItem value="none">None</SelectItem>
                                     {RARITIES.map((rarity) => (
                                         <SelectItem key={rarity} value={rarity}>
                                             {rarity}
