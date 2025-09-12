@@ -111,15 +111,15 @@ function ItemsPageContent() {
         selectedSequences.length > 0
 
     return (
-        <div className="container mx-auto px-4 py-8">
-            <div className="flex justify-between items-center mb-6">
-                <h1 className="text-3xl font-bold">{t('title')}</h1>
+        <div className="container mx-auto px-4 py-6 md:py-8">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+                <h1 className="text-2xl md:text-3xl font-bold">{t('title')}</h1>
                 <Link href="/items/new">
-                    <Button>{t('addNew')}</Button>
+                    <Button className="w-full sm:w-auto">{t('addNew')}</Button>
                 </Link>
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 md:gap-6">
                 <div className={`lg:col-span-1 ${showFilters ? 'block' : 'hidden lg:block'}`}>
                     <Card>
                         <CardHeader>
@@ -297,7 +297,7 @@ function ItemsPageContent() {
                     </div>
 
                     {isLoading ? (
-                        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
                             {[...Array(6)].map((_, i) => (
                                 <Card key={i} className="animate-pulse">
                                     <CardContent className="h-48" />
@@ -305,7 +305,7 @@ function ItemsPageContent() {
                             ))}
                         </div>
                     ) : filteredAndSortedItems.length > 0 ? (
-                        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
                             {filteredAndSortedItems.map((item) => (
                                 <ItemCard key={item.id} item={item} />
                             ))}

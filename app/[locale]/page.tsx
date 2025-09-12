@@ -38,12 +38,12 @@ export default function HomePage() {
     }
 
     return (
-        <div className="container mx-auto px-4 py-8">
-            <div className="text-center mb-12">
-                <h1 className="text-5xl font-bold mb-4 bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
+        <div className="container mx-auto px-4 py-6 md:py-8">
+            <div className="text-center mb-8 md:mb-12">
+                <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-4 bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
                     {t('title')}
                 </h1>
-                <p className="text-xl text-muted-foreground mb-8">
+                <p className="text-lg md:text-xl text-muted-foreground mb-6 md:mb-8">
                     {t('subtitle')}
                 </p>
 
@@ -62,7 +62,7 @@ export default function HomePage() {
                 </form>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 md:gap-6 mb-8 md:mb-12">
                 <Card>
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                         <CardTitle className="text-sm font-medium">{t('totalItems')}</CardTitle>
@@ -112,7 +112,7 @@ export default function HomePage() {
                 </div>
 
                 {itemsLoading ? (
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
                         {[...Array(6)].map((_, i) => (
                             <Card key={i} className="animate-pulse">
                                 <CardContent className="h-48" />
@@ -120,7 +120,7 @@ export default function HomePage() {
                         ))}
                     </div>
                 ) : recentItems.length > 0 ? (
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
                         {recentItems.map((item) => (
                             <ItemCard key={item.id} item={item} />
                         ))}
@@ -137,7 +137,7 @@ export default function HomePage() {
                 )}
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
                 <Card className="hover:shadow-lg transition-shadow">
                     <CardHeader>
                         <CardTitle>{t('explorePathways')}</CardTitle>

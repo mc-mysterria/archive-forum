@@ -15,23 +15,23 @@ interface ItemCardProps {
 export function ItemCard({ item }: ItemCardProps) {
     return (
         <Link href={`/items/${item.id}`}>
-            <Card className="hover:shadow-lg transition-all hover:scale-105 cursor-pointer h-full">
-                <CardHeader>
+            <Card className="hover:shadow-lg transition-all hover:scale-105 cursor-pointer h-full touch-manipulation">
+                <CardHeader className="pb-3">
                     <div className="flex justify-between items-start gap-2">
-                        <CardTitle className="text-lg line-clamp-2">{item.name}</CardTitle>
+                        <CardTitle className="text-base md:text-lg line-clamp-2">{item.name}</CardTitle>
                         {item.sequenceNumber !== undefined && (
-                            <Badge variant="outline" className="shrink-0">
+                            <Badge variant="outline" className="shrink-0 text-xs">
                                 Seq {item.sequenceNumber}
                             </Badge>
                         )}
                     </div>
                 </CardHeader>
-                <CardContent className="space-y-4">
+                <CardContent className="space-y-3 pb-3">
                     <p className="text-sm text-muted-foreground line-clamp-3">
                         {item.description || 'No description available'}
                     </p>
 
-                    <div className="flex flex-wrap gap-2">
+                    <div className="flex flex-wrap gap-1.5">
                         {item.pathway && (
                             <Badge variant="secondary" className="text-xs">
                                 {item.pathway.name}
@@ -56,21 +56,21 @@ export function ItemCard({ item }: ItemCardProps) {
                         )}
                     </div>
                 </CardContent>
-                <CardFooter className="text-xs text-muted-foreground">
+                <CardFooter className="text-xs text-muted-foreground pt-3">
                     <div className="flex items-center justify-between w-full">
-                        <div className="flex items-center gap-4">
+                        <div className="flex items-center gap-3 md:gap-4">
               <span className="flex items-center gap-1">
                 <User className="h-3 w-3" />
-                  {item.researcher.nickname}
+                  <span className="truncate max-w-20 md:max-w-none">{item.researcher.nickname}</span>
               </span>
                             <span className="flex items-center gap-1">
                 <MessageSquare className="h-3 w-3" />
                                 {item.comments?.length || 0}
               </span>
                         </div>
-                        <span className="flex items-center gap-1">
+                        <span className="flex items-center gap-1 text-xs">
               <Calendar className="h-3 w-3" />
-                            {formatDate(item.createdAt)}
+                            <span className="hidden sm:inline">{formatDate(item.createdAt)}</span>
             </span>
                     </div>
                 </CardFooter>

@@ -5,6 +5,7 @@ import { LanguageSelector } from '@/components/ui/language-selector'
 import { BookOpen, Compass, Package, Users, Plus } from 'lucide-react'
 import { getTranslations } from 'next-intl/server'
 import { HeaderNavigation } from './header-navigation'
+import { MobileNavigation } from './mobile-navigation'
 
 interface HeaderServerProps {
   locale: string
@@ -28,22 +29,27 @@ export async function HeaderServer({ locale }: HeaderServerProps) {
         <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
             <div className="container mx-auto px-4">
                 <div className="flex h-16 items-center justify-between">
-                    <div className="flex items-center gap-8">
+                    <div className="flex items-center gap-2 md:gap-8">
+                        <MobileNavigation navigation={navigation} />
                         <Link href={getLocalizedHref('/')} className="flex items-center gap-2">
                             <BookOpen className="h-6 w-6 text-primary" />
-                            <span className="font-bold text-xl">{t('mysterria')}</span>
+                            <span className="font-bold text-lg md:text-xl">{t('mysterria')}</span>
                         </Link>
 
                         <HeaderNavigation navigation={navigation} />
                     </div>
 
-                    <div className="flex items-center gap-4">
-                        <LanguageSelector />
-                        <ResearcherSelector />
+                    <div className="flex items-center gap-2 md:gap-4">
+                        <div className="hidden sm:block">
+                            <LanguageSelector />
+                        </div>
+                        <div className="hidden sm:block">
+                            <ResearcherSelector />
+                        </div>
                         <Link href={getLocalizedHref('/items/new')}>
                             <Button size="sm">
-                                <Plus className="h-4 w-4 mr-2" />
-                                {t('addItem')}
+                                <Plus className="h-4 w-4 md:mr-2" />
+                                <span className="hidden md:inline">{t('addItem')}</span>
                             </Button>
                         </Link>
                     </div>
