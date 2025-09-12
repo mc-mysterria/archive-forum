@@ -1,7 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { researchersApi } from '@/lib/api/researchers'
 import { CreateResearcherRequest } from '@/lib/types'
-import { useToast } from '@/components/ui/use-toast'
 
 export function useResearchers() {
     return useQuery({
@@ -28,23 +27,11 @@ export function useResearcherByNickname(nickname: string) {
 
 export function useCreateResearcher() {
     const queryClient = useQueryClient()
-    const { toast } = useToast()
 
     return useMutation({
         mutationFn: (data: CreateResearcherRequest) => researchersApi.create(data),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['researchers'] })
-            toast({
-                title: 'Success',
-                description: 'Researcher created successfully',
-            })
-        },
-        onError: () => {
-            toast({
-                title: 'Error',
-                description: 'Failed to create researcher',
-                variant: 'destructive',
-            })
         },
     })
 }

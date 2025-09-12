@@ -18,10 +18,10 @@ export async function HeaderServer({ locale }: HeaderServerProps) {
     }
 
     const navigation = [
-        { name: t('items'), href: getLocalizedHref('/items'), icon: 'BookOpen' },
-        { name: t('pathways'), href: getLocalizedHref('/pathways'), icon: 'Compass' },
-        { name: t('types'), href: getLocalizedHref('/types'), icon: 'Package' },
-        { name: t('researchers'), href: getLocalizedHref('/researchers'), icon: 'Users' },
+        { name: t('items'), href: getLocalizedHref('/items'), icon: 'BookOpen' as const },
+        { name: t('pathways'), href: getLocalizedHref('/pathways'), icon: 'Compass' as const },
+        { name: t('types'), href: getLocalizedHref('/types'), icon: 'Package' as const },
+        { name: t('researchers'), href: getLocalizedHref('/researchers'), icon: 'Users' as const },
     ]
 
     return (

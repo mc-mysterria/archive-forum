@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { useTranslations } from 'next-intl'
 import { useCreateComment } from '@/lib/hooks/use-comments'
 import { useResearcherStore } from '@/lib/store/researcher-store'
 import { Button } from '@/components/ui/button'
@@ -13,6 +14,7 @@ interface CommentFormProps {
 
 export function CommentForm({ itemId }: CommentFormProps) {
     const [content, setContent] = useState('')
+    const t = useTranslations('comments')
     const { researcher } = useResearcherStore()
     const createComment = useCreateComment()
 
@@ -37,7 +39,7 @@ export function CommentForm({ itemId }: CommentFormProps) {
             <Card>
                 <CardContent className="pt-6">
                     <p className="text-sm text-muted-foreground text-center">
-                        Please select a researcher nickname to comment
+                        {t('selectResearcherToComment')}
                     </p>
                 </CardContent>
             </Card>
@@ -47,7 +49,7 @@ export function CommentForm({ itemId }: CommentFormProps) {
     return (
         <form onSubmit={handleSubmit} className="space-y-4">
             <Textarea
-                placeholder="Share your thoughts about this item..."
+                placeholder={t('placeholder')}
                 value={content}
                 onChange={(e) => setContent(e.target.value)}
                 rows={3}
@@ -56,10 +58,10 @@ export function CommentForm({ itemId }: CommentFormProps) {
             />
             <div className="flex justify-between items-center">
         <span className="text-xs text-muted-foreground">
-          {content.length}/2000 characters
+          {content.length}/2000 {t('charactersLeft')}
         </span>
                 <Button type="submit" disabled={createComment.isPending}>
-                    {createComment.isPending ? 'Posting...' : 'Post Comment'}
+                    {createComment.isPending ? t('posting') : t('postComment')}
                 </Button>
             </div>
         </form>

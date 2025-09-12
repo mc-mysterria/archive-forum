@@ -1,6 +1,7 @@
 'use client'
 
 import { useParams } from 'next/navigation'
+import { useTranslations } from 'next-intl'
 import { useResearcher } from '@/lib/hooks/use-researchers'
 import { useItemsByResearcher } from '@/lib/hooks/use-items'
 import { useCommentsByResearcher } from '@/lib/hooks/use-comments'
@@ -15,6 +16,9 @@ import Link from 'next/link'
 
 export default function ResearcherProfilePage() {
     const params = useParams()
+    const t = useTranslations('researchers')
+    const tComments = useTranslations('comments')
+    const locale = params.locale as string
     const researcherId = parseInt(params.id as string)
 
     const { data: researcher, isLoading } = useResearcher(researcherId)
@@ -36,9 +40,9 @@ export default function ResearcherProfilePage() {
             <div className="container mx-auto px-4 py-8">
                 <Card>
                     <CardContent className="text-center py-12">
-                        <p className="text-muted-foreground">Researcher not found</p>
-                        <Link href="/researchers">
-                            <Button className="mt-4">Back to Researchers</Button>
+                        <p className="text-muted-foreground">{t('notFound')}</p>
+                        <Link href={`/${locale}/researchers`}>
+                            <Button className="mt-4">{t('backToResearchers')}</Button>
                         </Link>
                     </CardContent>
                 </Card>
@@ -49,10 +53,10 @@ export default function ResearcherProfilePage() {
     return (
         <div className="container mx-auto px-4 py-8 max-w-5xl">
             <div className="mb-6">
-                <Link href="/researchers">
+                <Link href={`/${locale}/researchers`}>
                     <Button variant="ghost" size="sm">
                         <ChevronLeft className="h-4 w-4 mr-2" />
-                        Back to Researchers
+                        {t('backToResearchers')}
                     </Button>
                 </Link>
             </div>
@@ -69,7 +73,7 @@ export default function ResearcherProfilePage() {
                             <CardTitle className="text-2xl">{researcher.nickname}</CardTitle>
                             <div className="text-sm text-muted-foreground flex items-center gap-1 mt-1">
                                 <Calendar className="h-3 w-3" />
-                                Researcher since {formatDate(researcher.createdAt)}
+                                {t('researcherSince')} {formatDate(researcher.createdAt)}
                             </div>
                         </div>
                     </div>
@@ -82,7 +86,7 @@ export default function ResearcherProfilePage() {
                                     {items?.length || 0}
                                 </div>
                                 <p className="text-xs text-muted-foreground text-center">
-                                    Items Created
+                                    {t('itemsCreated')}
                                 </p>
                             </CardContent>
                         </Card>
@@ -92,7 +96,7 @@ export default function ResearcherProfilePage() {
                                     {comments?.length || 0}
                                 </div>
                                 <p className="text-xs text-muted-foreground text-center">
-                                    Comments
+                                    {tComments('title')}
                                 </p>
                             </CardContent>
                         </Card>
@@ -102,8 +106,8 @@ export default function ResearcherProfilePage() {
 
             <Tabs defaultValue="items">
                 <TabsList className="grid w-full grid-cols-2">
-                    <TabsTrigger value="items">Items ({items?.length || 0})</TabsTrigger>
-                    <TabsTrigger value="comments">Comments ({comments?.length || 0})</TabsTrigger>
+                    <TabsTrigger value="items">{t('itemsCreated')} ({items?.length || 0})</TabsTrigger>
+                    <TabsTrigger value="comments">{tComments('title')} ({comments?.length || 0})</TabsTrigger>
                 </TabsList>
 
                 <TabsContent value="items" className="mt-6">
@@ -116,7 +120,7 @@ export default function ResearcherProfilePage() {
                     ) : (
                         <Card>
                             <CardContent className="text-center py-12">
-                                <p className="text-muted-foreground">No items created yet</p>
+                                <p className="text-muted-foreground">{t('noItemsCreated')}</p>
                             </CardContent>
                         </Card>
                     )}
@@ -129,8 +133,8 @@ export default function ResearcherProfilePage() {
                                 <Card key={comment.id}>
                                     <CardContent className="pt-6">
                                         <div className="flex justify-between items-start mb-2">
-                                            <Link href={`/items/${comment.id}`} className="font-semibold hover:underline">
-                                                Item #{comment.id}
+                                            <Link href={`/${locale}/items/${comment.id}`} className="font-semibold hover:underline">
+                                                {t('itemNumber')}{comment.id}
                                             </Link>
                                             <span className="text-xs text-muted-foreground">
                         {formatDate(comment.createdAt)}
@@ -144,7 +148,7 @@ export default function ResearcherProfilePage() {
                     ) : (
                         <Card>
                             <CardContent className="text-center py-12">
-                                <p className="text-muted-foreground">No comments yet</p>
+                                <p className="text-muted-foreground">{t('noCommentsYet')}</p>
                             </CardContent>
                         </Card>
                     )}

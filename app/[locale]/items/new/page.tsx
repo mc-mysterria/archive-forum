@@ -1,6 +1,7 @@
 'use client'
 
-import { useRouter } from 'next/navigation'
+import { useParams, useRouter } from 'next/navigation'
+import { useTranslations } from 'next-intl'
 import { useCreateItem } from '@/lib/hooks/use-items'
 import { usePathways } from '@/lib/hooks/use-pathways'
 import { useTypes } from '@/lib/hooks/use-types'
@@ -12,7 +13,10 @@ import { ChevronLeft } from 'lucide-react'
 import Link from 'next/link'
 
 export default function NewItemPage() {
+    const params = useParams()
     const router = useRouter()
+    const t = useTranslations('items')
+    const locale = params.locale as string
     const createItem = useCreateItem()
     const { data: pathways } = usePathways()
     const { data: types } = useTypes()
@@ -26,7 +30,7 @@ export default function NewItemPage() {
                 ...data,
                 researcherId: researcher.id,
             })
-            router.push(`/items/${newItem.id}`)
+            router.push(`/${locale}/items/${newItem.id}`)
         } catch (error) {
             console.error('Failed to create item:', error)
         }
@@ -38,10 +42,10 @@ export default function NewItemPage() {
                 <Card>
                     <CardContent className="text-center py-12">
                         <p className="text-muted-foreground mb-4">
-                            Please select a researcher nickname to create items
+                            {t('selectResearcherToCreate')}
                         </p>
-                        <Link href="/items">
-                            <Button>Back to Items</Button>
+                        <Link href={`/${locale}/items`}>
+                            <Button>{t('backToItems')}</Button>
                         </Link>
                     </CardContent>
                 </Card>
@@ -52,17 +56,17 @@ export default function NewItemPage() {
     return (
         <div className="container mx-auto px-4 py-8 max-w-2xl">
             <div className="mb-6">
-                <Link href="/items">
+                <Link href={`/${locale}/items`}>
                     <Button variant="ghost" size="sm">
                         <ChevronLeft className="h-4 w-4 mr-2" />
-                        Back to Items
+                        {t('backToItems')}
                     </Button>
                 </Link>
             </div>
 
             <Card>
                 <CardHeader>
-                    <CardTitle>Create New Item</CardTitle>
+                    <CardTitle>{t('createNew')}</CardTitle>
                 </CardHeader>
                 <CardContent>
                     <ItemForm

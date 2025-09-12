@@ -21,6 +21,7 @@ import { Badge } from '@/components/ui/badge'
 import { Package, Plus, ChevronRight } from 'lucide-react'
 import Link from 'next/link'
 import { useTranslations } from 'next-intl'
+import { useParams } from 'next/navigation'
 
 export default function TypesPage() {
     const { data: types, isLoading } = useTypes()
@@ -55,7 +56,7 @@ export default function TypesPage() {
                 <div>
                     <h1 className="text-3xl font-bold">{t('title')}</h1>
                     <p className="text-muted-foreground mt-2">
-                        Categories of mysterious items in the archive
+                        {t('subtitle')}
                     </p>
                 </div>
                 <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
@@ -70,29 +71,29 @@ export default function TypesPage() {
                             <DialogHeader>
                                 <DialogTitle>{t('createNew')}</DialogTitle>
                                 <DialogDescription>
-                                    Add a new item type category to the archive
+                                    {t('createNewDesc')}
                                 </DialogDescription>
                             </DialogHeader>
                             <div className="grid gap-4 py-4">
                                 <div className="grid gap-2">
-                                    <Label htmlFor="name">Name *</Label>
+                                    <Label htmlFor="name">{t('nameRequired')}</Label>
                                     <Input
                                         id="name"
                                         value={formData.name}
                                         onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                                        placeholder="Enter type name..."
+                                        placeholder={t('namePlaceholder')}
                                         minLength={2}
                                         maxLength={100}
                                         required
                                     />
                                 </div>
                                 <div className="grid gap-2">
-                                    <Label htmlFor="description">Description</Label>
+                                    <Label htmlFor="description">{t('description')}</Label>
                                     <Textarea
                                         id="description"
                                         value={formData.description}
                                         onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                                        placeholder="Describe the type..."
+                                        placeholder={t('descPlaceholder')}
                                         rows={3}
                                         maxLength={2000}
                                     />
@@ -103,14 +104,14 @@ export default function TypesPage() {
                                         id="iconUrl"
                                         value={formData.iconUrl}
                                         onChange={(e) => setFormData({ ...formData, iconUrl: e.target.value })}
-                                        placeholder="https://example.com/icon.png"
+                                        placeholder={t('iconUrlPlaceholder')}
                                         maxLength={500}
                                     />
                                 </div>
                             </div>
                             <DialogFooter>
                                 <Button type="submit" disabled={createType.isPending}>
-                                    {createType.isPending ? 'Creating...' : 'Create Type'}
+                                    {createType.isPending ? t('creating') : t('createType')}
                                 </Button>
                             </DialogFooter>
                         </form>
@@ -138,7 +139,7 @@ export default function TypesPage() {
                         <Package className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
                         <p className="text-muted-foreground mb-4">{t('noTypes')}</p>
                         <Button onClick={() => setDialogOpen(true)}>
-                            Create First Type
+                            {t('createFirst')}
                         </Button>
                     </CardContent>
                 </Card>
@@ -149,6 +150,8 @@ export default function TypesPage() {
 
 function TypeCard({ type }: { type: any }) {
     const { data: items } = useItemsByType(type.id)
+    const t = useTranslations('types')
+    const { locale } = useParams()
 
     return (
         <Card className="hover:shadow-lg transition-all">
@@ -161,13 +164,13 @@ function TypeCard({ type }: { type: any }) {
                 </div>
                 <CardTitle className="text-lg">{type.name}</CardTitle>
                 <CardDescription className="line-clamp-2 text-xs">
-                    {type.description || 'No description'}
+                    {type.description || t('noDescription')}
                 </CardDescription>
             </CardHeader>
             <CardContent>
-                <Link href={`/items?type=${type.id}`}>
+                <Link href={`/${locale}/items?type=${type.id}`}>
                     <Button variant="outline" size="sm" className="w-full">
-                        View Items
+                        {t('viewItems')}
                         <ChevronRight className="h-4 w-4 ml-2" />
                     </Button>
                 </Link>
