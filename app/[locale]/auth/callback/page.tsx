@@ -50,36 +50,12 @@ export default function AuthCallbackPage() {
             throw new Error(t('invalidTokenMessage'))
           }
 
-          // For Mysterria backend tokens, we need to fetch user info from API
-          // since username is not in the JWT payload
-          let user = {
+          // Extract user info from JWT payload (now includes username)
+          const user = {
             id: payload.sub,
-            username: `User-${payload.sub.slice(0, 8)}`, // Fallback username from user ID
+            username: payload.username || `User-${payload.sub.slice(0, 8)}`, // Use JWT username or fallback
             email: payload.email || undefined,
             permissions: payload.permissions || [],
-          }
-
-          // Try to fetch full user info from backend API if available
-          try {
-            const response = await fetch(`${process.env.NEXT_PUBLIC_AUTH_URL || 'https://www.mysterria.net'}/api/users/${payload.sub}`, {
-              headers: {
-                'Authorization': `Bearer ${token}`,
-                'Content-Type': 'application/json',
-              },
-            })
-
-            if (response.ok) {
-              const userInfo = await response.json()
-              user = {
-                id: payload.sub,
-                username: userInfo.username || userInfo.name || userInfo.displayName || user.username,
-                email: userInfo.email || payload.email,
-                permissions: payload.permissions || [],
-              }
-            }
-          } catch (apiError) {
-            console.warn('Could not fetch user info from API, using token data:', apiError)
-            // Continue with token data only
           }
 
           // Store authentication data
