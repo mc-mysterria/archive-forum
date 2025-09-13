@@ -5,7 +5,6 @@ import { formatDate } from '@/lib/utils'
 import { Card, CardContent } from '@/components/ui/card'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { useDeleteComment } from '@/lib/hooks/use-comments'
-import { useResearcherStore } from '@/lib/store/researcher-store'
 import { useAuth } from '@/lib/hooks/use-auth'
 import { Button } from '@/components/ui/button'
 import { Trash2 } from 'lucide-react'
@@ -15,7 +14,6 @@ interface CommentListProps {
 }
 
 export function CommentList({ comments }: CommentListProps) {
-    const { researcher } = useResearcherStore()
     const { user, canModerate } = useAuth()
     const deleteComment = useDeleteComment()
 

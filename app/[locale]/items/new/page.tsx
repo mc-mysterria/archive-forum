@@ -5,7 +5,6 @@ import { useTranslations } from 'next-intl'
 import { useCreateItem } from '@/lib/hooks/use-items'
 import { usePathways } from '@/lib/hooks/use-pathways'
 import { useTypes } from '@/lib/hooks/use-types'
-import { useResearcherStore } from '@/lib/store/researcher-store'
 import { useAuth } from '@/lib/hooks/use-auth'
 import { ProtectedRoute } from '@/components/auth/protected-route'
 import { ItemForm } from '@/components/items/item-form'
@@ -22,7 +21,6 @@ export default function NewItemPage() {
     const createItem = useCreateItem()
     const { data: pathways } = usePathways()
     const { data: types } = useTypes()
-    const { researcher } = useResearcherStore()
     const { user } = useAuth()
 
     const handleSubmit = async (data: any) => {
@@ -31,7 +29,7 @@ export default function NewItemPage() {
         try {
             const newItem = await createItem.mutateAsync({
                 ...data,
-                researcherId: researcher?.id || parseInt(user.id.toString()), // Ensure it's a number
+                researcherId: parseInt(user.id.toString()), // Use authenticated user's ID
             })
             router.push(`/${locale}/items/${newItem.id}`)
         } catch (error) {

@@ -3,7 +3,6 @@
 import { useState } from 'react'
 import { useTranslations } from 'next-intl'
 import { useCreateComment } from '@/lib/hooks/use-comments'
-import { useResearcherStore } from '@/lib/store/researcher-store'
 import { useAuth } from '@/lib/hooks/use-auth'
 import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
@@ -18,7 +17,6 @@ interface CommentFormProps {
 export function CommentForm({ itemId }: CommentFormProps) {
     const [content, setContent] = useState('')
     const t = useTranslations('comments')
-    const { researcher } = useResearcherStore()
     const { isAuthenticated, user, canWrite } = useAuth()
     const createComment = useCreateComment()
 
@@ -30,7 +28,7 @@ export function CommentForm({ itemId }: CommentFormProps) {
             await createComment.mutateAsync({
                 content,
                 itemId,
-                researcherId: researcher?.id || parseInt(user.id.toString()), // Ensure it's a number
+                researcherId: parseInt(user.id.toString()), // Use authenticated user's ID
             })
             setContent('')
         } catch (error) {

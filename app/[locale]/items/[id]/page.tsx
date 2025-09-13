@@ -5,7 +5,7 @@ import { useItem, useDeleteItem } from '@/lib/hooks/use-items'
 import { useCommentsByItem } from '@/lib/hooks/use-comments'
 import { CommentForm } from '@/components/comments/comment-form'
 import { CommentList } from '@/components/comments/comment-list'
-import { useResearcherStore } from '@/lib/store/researcher-store'
+import { useAuth } from '@/lib/hooks/use-auth'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -31,9 +31,19 @@ export default function ItemDetailPage() {
     const { data: item, isLoading } = useItem(itemId)
     const { data: comments } = useCommentsByItem(itemId)
     const deleteItem = useDeleteItem()
-    const { researcher } = useResearcherStore()
+    const { user, canModerate } = useAuth()
 
-    const canEdit = researcher && item && researcher.id === item.researcher.id
+    const canEdit = () => {
+        if (!user || !item) return false
+        // User can edit if they created the item or have moderate permissions
+        return user.id.toString() === item.researcher.id.toString() || canModerate()
+    }
+
+    const canDelete = () => {
+        if (!user || !item) return false
+        // User can delete if they created the item or have moderate permissions
+        return user.id.toString() === item.researcher.id.toString() || canModerate()
+    }
 
     const handleDelete = async () => {
         if (!confirm('Are you sure you want to delete this item?')) return
@@ -116,22 +126,26 @@ export default function ItemDetailPage() {
                                 )}
                             </div>
                         </div>
-                        {canEdit && (
+                        {(canEdit() || canDelete()) && (
                             <div className="flex gap-2">
-                                <Link href={`/items/${item.id}/edit`}>
-                                    <Button variant="outline" size="sm">
-                                        <Edit className="h-4 w-4 mr-2" />
-                                        Edit
+                                {canEdit() && (
+                                    <Link href={`/items/${item.id}/edit`}>
+                                        <Button variant="outline" size="sm">
+                                            <Edit className="h-4 w-4 mr-2" />
+                                            Edit
+                                        </Button>
+                                    </Link>
+                                )}
+                                {canDelete() && (
+                                    <Button
+                                        variant="destructive"
+                                        size="sm"
+                                        onClick={handleDelete}
+                                    >
+                                        <Trash2 className="h-4 w-4 mr-2" />
+                                        Delete
                                     </Button>
-                                </Link>
-                                <Button
-                                    variant="destructive"
-                                    size="sm"
-                                    onClick={handleDelete}
-                                >
-                                    <Trash2 className="h-4 w-4 mr-2" />
-                                    Delete
-                                </Button>
+                                )}
                             </div>
                         )}
                     </div>

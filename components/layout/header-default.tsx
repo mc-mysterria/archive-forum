@@ -2,7 +2,6 @@
 
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
-import { ResearcherSelector } from '@/components/researcher/researcher-selector'
 import { BookOpen, Compass, Package, Users, Plus, Globe, LogIn, LogOut, User } from 'lucide-react'
 import { usePathname } from 'next/navigation'
 import { cn } from '@/lib/utils'
@@ -92,8 +91,6 @@ export function HeaderDefault() {
                                 <SelectItem value="uk">Українська</SelectItem>
                             </SelectContent>
                         </Select>
-
-                        <ResearcherSelector />
 
                         {/* Add Item button - only show if user can write */}
                         {isAuthenticated && canWrite() ? (
