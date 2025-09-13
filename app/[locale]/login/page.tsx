@@ -15,12 +15,55 @@ export default function LoginPage() {
     const archiveUrl = process.env.NEXT_PUBLIC_ARCHIVE_URL || 'https://archive.mysterria.net'
     const returnUrl = searchParams.get('returnUrl') || '/'
 
-    // Redirect to main auth site with callback URL
+    // Open auth in popup window
     const loginUrl = `${authUrl}/login?redirect=${encodeURIComponent(
-      `${archiveUrl}/auth/callback?returnUrl=${encodeURIComponent(returnUrl)}`
+      `${archiveUrl}/auth/callback?popup=true&returnUrl=${encodeURIComponent(returnUrl)}`
     )}`
 
-    window.location.href = loginUrl
+    const popup = window.open(
+      loginUrl,
+      'mysterria-auth',
+      'width=500,height=700,scrollbars=yes,resizable=yes,status=yes,location=yes,toolbar=no,menubar=no'
+    )
+
+    if (!popup) {
+      alert('Please allow popups for this site to login')
+      return
+    }
+
+    // Listen for authentication success
+    const handleMessage = (event: MessageEvent) => {
+      // Verify origin for security
+      if (event.origin !== (process.env.NEXT_PUBLIC_ARCHIVE_URL || 'https://archive.mysterria.net')) {
+        return
+      }
+
+      if (event.data.type === 'MYSTERRIA_AUTH_SUCCESS') {
+        // Close popup
+        popup.close()
+
+        // Redirect parent window to return URL
+        router.replace(event.data.returnUrl || '/')
+
+        // Clean up listener
+        window.removeEventListener('message', handleMessage)
+      } else if (event.data.type === 'MYSTERRIA_AUTH_ERROR') {
+        // Close popup and show error
+        popup.close()
+        alert(event.data.error || 'Authentication failed')
+        window.removeEventListener('message', handleMessage)
+      }
+    }
+
+    window.addEventListener('message', handleMessage)
+
+    // Clean up if popup is closed manually
+    const checkClosed = setInterval(() => {
+      if (popup.closed) {
+        clearInterval(checkClosed)
+        window.removeEventListener('message', handleMessage)
+      }
+    }, 1000)
   }
 
   // If user is already authenticated, redirect back

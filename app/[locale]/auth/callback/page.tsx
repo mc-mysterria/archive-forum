@@ -18,6 +18,8 @@ export default function AuthCallbackPage() {
 
   useEffect(() => {
     const handleAuthCallback = async () => {
+      const isPopup = searchParams.get('popup') === 'true'
+
       try {
         // Get token from URL parameters
         const token = searchParams.get('token')
@@ -26,6 +28,14 @@ export default function AuthCallbackPage() {
         if (!token) {
           setStatus('invalid_token')
           setError('No authentication token received')
+
+          // If in popup, notify parent of error
+          if (isPopup && window.opener) {
+            window.opener.postMessage({
+              type: 'MYSTERRIA_AUTH_ERROR',
+              error: 'No authentication token received'
+            }, '*')
+          }
           return
         }
 
@@ -78,21 +88,52 @@ export default function AuthCallbackPage() {
 
           setStatus('success')
 
-          // Redirect after a brief success message
-          setTimeout(() => {
-            router.replace(returnUrl)
-          }, 2000)
+          // Handle popup vs normal redirect
+          if (isPopup && window.opener) {
+            // In popup: notify parent and close popup
+            window.opener.postMessage({
+              type: 'MYSTERRIA_AUTH_SUCCESS',
+              returnUrl: returnUrl
+            }, '*')
+
+            // Close popup after short delay
+            setTimeout(() => {
+              window.close()
+            }, 1000)
+          } else {
+            // Normal redirect after a brief success message
+            setTimeout(() => {
+              router.replace(returnUrl)
+            }, 2000)
+          }
 
         } catch (decodeError) {
           console.error('Token decode error:', decodeError)
           setStatus('invalid_token')
           setError('Invalid token format')
+
+          // If in popup, notify parent of error
+          if (isPopup && window.opener) {
+            window.opener.postMessage({
+              type: 'MYSTERRIA_AUTH_ERROR',
+              error: 'Invalid token format'
+            }, '*')
+          }
         }
 
       } catch (err) {
         console.error('Auth callback error:', err)
+        const errorMessage = err instanceof Error ? err.message : 'Authentication failed'
         setStatus('error')
-        setError(err instanceof Error ? err.message : 'Authentication failed')
+        setError(errorMessage)
+
+        // If in popup, notify parent of error
+        if (isPopup && window.opener) {
+          window.opener.postMessage({
+            type: 'MYSTERRIA_AUTH_ERROR',
+            error: errorMessage
+          }, '*')
+        }
       }
     }
 
