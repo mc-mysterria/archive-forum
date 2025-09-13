@@ -1,11 +1,10 @@
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
-import { ResearcherSelector } from '@/components/researcher/researcher-selector'
-import { LanguageSelector } from '@/components/ui/language-selector'
 import { BookOpen, Compass, Package, Users, Plus } from 'lucide-react'
 import { getTranslations } from 'next-intl/server'
 import { HeaderNavigation } from './header-navigation'
 import { MobileNavigation } from './mobile-navigation'
+import { HeaderClientWrapper } from './header-client-wrapper'
 
 interface HeaderServerProps {
   locale: string
@@ -40,12 +39,10 @@ export async function HeaderServer({ locale }: HeaderServerProps) {
                     </div>
 
                     <div className="flex items-center gap-2 md:gap-4">
-                        <div className="hidden sm:block">
-                            <LanguageSelector />
+                        <div className="hidden sm:flex sm:items-center sm:gap-2 md:gap-4">
+                            <HeaderClientWrapper />
                         </div>
-                        <div className="hidden sm:block">
-                            <ResearcherSelector />
-                        </div>
+
                         <Link href={getLocalizedHref('/items/new')}>
                             <Button size="sm">
                                 <Plus className="h-4 w-4 md:mr-2" />
