@@ -52,8 +52,23 @@ export function HeaderClientWrapper() {
             }
 
             if (event.data.type === 'MYSTERRIA_AUTH_SUCCESS') {
-                // Close popup and reload to update auth state
+                // Close the main mysterria.net popup (it might still be open)
                 popup.close()
+
+                // Also try to close any other auth-related popups
+                try {
+                    // Find and close any mysterria.net login windows
+                    const allWindows = [popup]
+                    allWindows.forEach(win => {
+                        if (win && !win.closed) {
+                            win.close()
+                        }
+                    })
+                } catch (e) {
+                    console.log('Could not close additional popups:', e)
+                }
+
+                // Reload to update auth state
                 window.location.reload()
                 window.removeEventListener('message', handleMessage)
             } else if (event.data.type === 'MYSTERRIA_AUTH_ERROR') {
@@ -72,6 +87,24 @@ export function HeaderClientWrapper() {
                 window.removeEventListener('message', handleMessage)
             }
         }, 1000)
+
+        // Also monitor for successful auth without popup closing (nested OAuth scenario)
+        const checkAuthSuccess = setInterval(() => {
+            const token = localStorage.getItem('access_token')
+            if (token && !popup.closed) {
+                // Authentication succeeded but popup is still open
+                // This happens with nested OAuth - close the popup manually
+                popup.close()
+                clearInterval(checkAuthSuccess)
+                window.location.reload()
+                window.removeEventListener('message', handleMessage)
+            }
+        }, 1000)
+
+        // Clean up the auth success checker after 2 minutes
+        setTimeout(() => {
+            clearInterval(checkAuthSuccess)
+        }, 120000)
     }
 
     return (

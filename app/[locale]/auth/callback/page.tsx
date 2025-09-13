@@ -96,7 +96,14 @@ export default function AuthCallbackPage() {
               returnUrl: returnUrl
             }, '*')
 
-            // Close popup after short delay
+            // Set a flag in localStorage to indicate auth completion
+            try {
+              localStorage.setItem('mysterria_auth_completed', Date.now().toString())
+            } catch (e) {
+              console.log('Could not set auth completion flag:', e)
+            }
+
+            // Close this popup after short delay
             setTimeout(() => {
               window.close()
             }, 1000)
