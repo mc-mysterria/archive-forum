@@ -40,3 +40,27 @@ export function useCreatePathway() {
         },
     })
 }
+
+export function useDeletePathway() {
+    const queryClient = useQueryClient()
+    const { toast } = useToast()
+
+    return useMutation({
+        mutationFn: (id: number) => pathwaysApi.delete(id),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['pathways'] })
+            queryClient.invalidateQueries({ queryKey: ['items'] })
+            toast({
+                title: 'Success',
+                description: 'Pathway deleted successfully',
+            })
+        },
+        onError: () => {
+            toast({
+                title: 'Error',
+                description: 'Failed to delete pathway',
+                variant: 'destructive',
+            })
+        },
+    })
+}

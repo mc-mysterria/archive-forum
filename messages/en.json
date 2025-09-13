@@ -82,7 +82,8 @@
     "welcomeBack": "Welcome back!",
     "signedInAs": "Signed in as",
     "welcome": "Welcome!",
-    "createdProfile": "Created new researcher profile:"
+    "createdProfile": "Created new researcher profile:",
+    "viewProfile": "View Profile"
   },
   "pathways": {
     "title": "Beyonder Pathways",
@@ -141,6 +142,7 @@
     "addComment": "Add Comment",
     "writeComment": "Write your comment...",
     "noComments": "No comments yet",
+    "noCommentsMessage": "No comments yet. Be the first to share your thoughts!",
     "postedBy": "Posted by",
     "placeholder": "Share your thoughts about this item...",
     "charactersLeft": "characters",

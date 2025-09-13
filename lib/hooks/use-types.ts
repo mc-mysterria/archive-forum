@@ -40,3 +40,27 @@ export function useCreateType() {
         },
     })
 }
+
+export function useDeleteType() {
+    const queryClient = useQueryClient()
+    const { toast } = useToast()
+
+    return useMutation({
+        mutationFn: (id: number) => typesApi.delete(id),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['types'] })
+            queryClient.invalidateQueries({ queryKey: ['items'] })
+            toast({
+                title: 'Success',
+                description: 'Type deleted successfully',
+            })
+        },
+        onError: () => {
+            toast({
+                title: 'Error',
+                description: 'Failed to delete type',
+                variant: 'destructive',
+            })
+        },
+    })
+}

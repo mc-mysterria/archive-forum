@@ -92,7 +92,7 @@ function ResearcherCard({researcher}: { researcher: any }) {
                 </div>
                 <Link href={`/researchers/${researcher.id}`}>
                     <Button variant="outline" className="w-full">
-                        View Profile
+                        {t('viewProfile')}
                     </Button>
                 </Link>
             </CardContent>

@@ -1,8 +1,9 @@
 'use client'
 
 import { useState } from 'react'
-import { useTypes, useCreateType } from '@/lib/hooks/use-types'
+import { useTypes, useCreateType, useDeleteType } from '@/lib/hooks/use-types'
 import { useItemsByType } from '@/lib/hooks/use-items'
+import { useAuth } from '@/lib/hooks/use-auth'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -18,7 +19,7 @@ import {
     DialogTrigger,
 } from '@/components/ui/dialog'
 import { Badge } from '@/components/ui/badge'
-import { Package, Plus, ChevronRight } from 'lucide-react'
+import { Package, Plus, ChevronRight, Trash2 } from 'lucide-react'
 import Link from 'next/link'
 import { useTranslations } from 'next-intl'
 import { useParams } from 'next/navigation'
@@ -26,6 +27,7 @@ import { useParams } from 'next/navigation'
 export default function TypesPage() {
     const { data: types, isLoading } = useTypes()
     const createType = useCreateType()
+    const { canAdmin } = useAuth()
     const t = useTranslations('types')
     const tCommon = useTranslations('common')
     const [dialogOpen, setDialogOpen] = useState(false)
@@ -59,13 +61,14 @@ export default function TypesPage() {
                         {t('subtitle')}
                     </p>
                 </div>
-                <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-                    <DialogTrigger asChild>
-                        <Button>
-                            <Plus className="h-4 w-4 mr-2" />
-                            {t('addType')}
-                        </Button>
-                    </DialogTrigger>
+                {canAdmin() && (
+                    <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+                        <DialogTrigger asChild>
+                            <Button>
+                                <Plus className="h-4 w-4 mr-2" />
+                                {t('addType')}
+                            </Button>
+                        </DialogTrigger>
                     <DialogContent>
                         <form onSubmit={handleSubmit}>
                             <DialogHeader>
@@ -117,6 +120,7 @@ export default function TypesPage() {
                         </form>
                     </DialogContent>
                 </Dialog>
+                )}
             </div>
 
             {isLoading ? (
@@ -130,7 +134,7 @@ export default function TypesPage() {
             ) : types && types.length > 0 ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                     {types.map((type) => (
-                        <TypeCard key={type.id} type={type} />
+                        <TypeCard key={type.id} type={type} canDelete={canAdmin()} />
                     ))}
                 </div>
             ) : (
@@ -138,9 +142,11 @@ export default function TypesPage() {
                     <CardContent className="text-center py-12">
                         <Package className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
                         <p className="text-muted-foreground mb-4">{t('noTypes')}</p>
-                        <Button onClick={() => setDialogOpen(true)}>
-                            {t('createFirst')}
-                        </Button>
+                        {canAdmin() && (
+                            <Button onClick={() => setDialogOpen(true)}>
+                                {t('createFirst')}
+                            </Button>
+                        )}
                     </CardContent>
                 </Card>
             )}
@@ -148,19 +154,43 @@ export default function TypesPage() {
     )
 }
 
-function TypeCard({ type }: { type: any }) {
+function TypeCard({ type, canDelete }: { type: any, canDelete: boolean }) {
     const { data: items } = useItemsByType(type.id)
+    const deleteType = useDeleteType()
     const t = useTranslations('types')
     const { locale } = useParams()
+
+    const handleDelete = async () => {
+        if (!confirm('Are you sure you want to delete this type? This will also affect all items of this type.')) return
+
+        try {
+            await deleteType.mutateAsync(type.id)
+        } catch (error) {
+            console.error('Failed to delete type:', error)
+        }
+    }
 
     return (
         <Card className="hover:shadow-lg transition-all">
             <CardHeader>
                 <div className="flex items-center justify-between mb-2">
                     <Package className="h-6 w-6 text-primary" />
-                    <Badge variant="outline">
-                        {items?.length || 0}
-                    </Badge>
+                    <div className="flex items-center gap-2">
+                        <Badge variant="outline">
+                            {items?.length || 0}
+                        </Badge>
+                        {canDelete && (
+                            <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={handleDelete}
+                                disabled={deleteType.isPending}
+                                className="text-destructive hover:text-destructive h-6 w-6 p-0"
+                            >
+                                <Trash2 className="h-3 w-3" />
+                            </Button>
+                        )}
+                    </div>
                 </div>
                 <CardTitle className="text-lg">{type.name}</CardTitle>
                 <CardDescription className="line-clamp-2 text-xs">

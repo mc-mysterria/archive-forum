@@ -5,7 +5,7 @@ import { useRouter, usePathname } from 'next/navigation'
 import { useTranslations } from 'next-intl'
 import { Button } from '@/components/ui/button'
 import { LanguageSelector } from '@/components/ui/language-selector'
-import { LogIn, LogOut, User, Plus } from 'lucide-react'
+import { LogIn, LogOut, User, Plus, Shield, Settings, Package, Compass } from 'lucide-react'
 import Link from 'next/link'
 import {
   Sheet,
@@ -16,10 +16,18 @@ import {
 } from '@/components/ui/sheet'
 
 export function HeaderClientWrapper() {
-    const { isAuthenticated, user, logout, canWrite } = useAuth()
+    const { isAuthenticated, user, logout, canWrite, canModerate, canAdmin } = useAuth()
     const router = useRouter()
     const pathname = usePathname()
     const tAuth = useTranslations('auth')
+
+    const getUserRole = () => {
+        if (!user) return null
+        if (canAdmin()) return { label: 'Admin', color: 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300' }
+        if (canModerate()) return { label: 'Moderator', color: 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300' }
+        if (canWrite()) return { label: 'Contributor', color: 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300' }
+        return { label: 'Reader', color: 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-300' }
+    }
 
     const handleLogout = () => {
         logout()
@@ -128,10 +136,45 @@ export function HeaderClientWrapper() {
                             <SheetTitle>{tAuth('userMenu')}</SheetTitle>
                         </SheetHeader>
                         <div className="mt-6 space-y-4">
+                            <div className="flex items-center justify-between p-3 bg-muted rounded-md">
+                                <div className="flex items-center gap-2">
+                                    <User className="h-4 w-4" />
+                                    <span className="font-medium">{user.username}</span>
+                                </div>
+                                {getUserRole() && (
+                                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${getUserRole()?.color}`}>
+                                        {getUserRole()?.label}
+                                    </span>
+                                )}
+                            </div>
                             <Button variant="ghost" className="w-full justify-start">
                                 <User className="h-4 w-4 mr-2" />
                                 {tAuth('profile')}
                             </Button>
+
+                            {canModerate() && (
+                                <>
+                                    <div className="px-3 py-2">
+                                        <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
+                                            <Shield className="h-4 w-4" />
+                                            Moderation
+                                        </div>
+                                    </div>
+                                    <Link href="/pathways">
+                                        <Button variant="ghost" className="w-full justify-start">
+                                            <Compass className="h-4 w-4 mr-2" />
+                                            Manage Pathways
+                                        </Button>
+                                    </Link>
+                                    <Link href="/types">
+                                        <Button variant="ghost" className="w-full justify-start">
+                                            <Package className="h-4 w-4 mr-2" />
+                                            Manage Types
+                                        </Button>
+                                    </Link>
+                                </>
+                            )}
+
                             <Button
                                 variant="ghost"
                                 className="w-full justify-start"

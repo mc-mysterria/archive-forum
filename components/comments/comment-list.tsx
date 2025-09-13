@@ -8,6 +8,7 @@ import { useDeleteComment } from '@/lib/hooks/use-comments'
 import { useAuth } from '@/lib/hooks/use-auth'
 import { Button } from '@/components/ui/button'
 import { Trash2 } from 'lucide-react'
+import { useTranslations } from 'next-intl'
 
 interface CommentListProps {
     comments: CommentDto[]
@@ -16,6 +17,7 @@ interface CommentListProps {
 export function CommentList({ comments }: CommentListProps) {
     const { user, canModerate } = useAuth()
     const deleteComment = useDeleteComment()
+    const t = useTranslations('comments')
 
     const canDeleteComment = (comment: CommentDto) => {
         if (!user) return false
@@ -28,7 +30,7 @@ export function CommentList({ comments }: CommentListProps) {
             <Card>
                 <CardContent className="pt-6">
                     <p className="text-center text-muted-foreground">
-                        No comments yet. Be the first to share your thoughts!
+                        {t('noCommentsMessage')}
                     </p>
                 </CardContent>
             </Card>
