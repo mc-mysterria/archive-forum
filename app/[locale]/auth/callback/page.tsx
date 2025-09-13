@@ -33,17 +33,41 @@ export default function AuthCallbackPage() {
         try {
           const payload = JSON.parse(atob(token.split('.')[1]))
 
-          // Create user object from JWT payload
-          const user = {
-            id: payload.sub || payload.userId || payload.id,
-            username: payload.username || payload.name || payload.email,
-            email: payload.email,
-            permissions: payload.permissions || payload.roles || [],
+          // Validate JWT has required fields
+          if (!payload.sub) {
+            throw new Error('Invalid token: missing user ID (sub)')
           }
 
-          // Validate required fields
-          if (!user.id || !user.username) {
-            throw new Error('Invalid token payload: missing user information')
+          // For Mysterria backend tokens, we need to fetch user info from API
+          // since username is not in the JWT payload
+          let user = {
+            id: payload.sub,
+            username: `User-${payload.sub.slice(0, 8)}`, // Fallback username from user ID
+            email: payload.email || undefined,
+            permissions: payload.permissions || [],
+          }
+
+          // Try to fetch full user info from backend API if available
+          try {
+            const response = await fetch(`${process.env.NEXT_PUBLIC_AUTH_URL || 'https://www.mysterria.net'}/api/users/${payload.sub}`, {
+              headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json',
+              },
+            })
+
+            if (response.ok) {
+              const userInfo = await response.json()
+              user = {
+                id: payload.sub,
+                username: userInfo.username || userInfo.name || userInfo.displayName || user.username,
+                email: userInfo.email || payload.email,
+                permissions: payload.permissions || [],
+              }
+            }
+          } catch (apiError) {
+            console.warn('Could not fetch user info from API, using token data:', apiError)
+            // Continue with token data only
           }
 
           // Store authentication data
