@@ -6,6 +6,8 @@ import { useCreateItem } from '@/lib/hooks/use-items'
 import { usePathways } from '@/lib/hooks/use-pathways'
 import { useTypes } from '@/lib/hooks/use-types'
 import { useResearcherStore } from '@/lib/store/researcher-store'
+import { useAuth } from '@/lib/hooks/use-auth'
+import { ProtectedRoute } from '@/components/auth/protected-route'
 import { ItemForm } from '@/components/items/item-form'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -21,14 +23,15 @@ export default function NewItemPage() {
     const { data: pathways } = usePathways()
     const { data: types } = useTypes()
     const { researcher } = useResearcherStore()
+    const { user } = useAuth()
 
     const handleSubmit = async (data: any) => {
-        if (!researcher) return
+        if (!user) return
 
         try {
             const newItem = await createItem.mutateAsync({
                 ...data,
-                researcherId: researcher.id,
+                researcherId: researcher?.id || parseInt(user.id.toString()), // Ensure it's a number
             })
             router.push(`/${locale}/items/${newItem.id}`)
         } catch (error) {
@@ -36,47 +39,32 @@ export default function NewItemPage() {
         }
     }
 
-    if (!researcher) {
-        return (
+    return (
+        <ProtectedRoute requiredPermission="PERM_ARCHIVE:WRITE">
             <div className="container mx-auto px-4 py-8 max-w-2xl">
+                <div className="mb-6">
+                    <Link href={`/${locale}/items`}>
+                        <Button variant="ghost" size="sm">
+                            <ChevronLeft className="h-4 w-4 mr-2" />
+                            {t('backToItems')}
+                        </Button>
+                    </Link>
+                </div>
+
                 <Card>
-                    <CardContent className="text-center py-12">
-                        <p className="text-muted-foreground mb-4">
-                            {t('selectResearcherToCreate')}
-                        </p>
-                        <Link href={`/${locale}/items`}>
-                            <Button>{t('backToItems')}</Button>
-                        </Link>
+                    <CardHeader>
+                        <CardTitle>{t('createNew')}</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <ItemForm
+                            pathways={pathways || []}
+                            types={types || []}
+                            onSubmit={handleSubmit}
+                            isSubmitting={createItem.isPending}
+                        />
                     </CardContent>
                 </Card>
             </div>
-        )
-    }
-
-    return (
-        <div className="container mx-auto px-4 py-8 max-w-2xl">
-            <div className="mb-6">
-                <Link href={`/${locale}/items`}>
-                    <Button variant="ghost" size="sm">
-                        <ChevronLeft className="h-4 w-4 mr-2" />
-                        {t('backToItems')}
-                    </Button>
-                </Link>
-            </div>
-
-            <Card>
-                <CardHeader>
-                    <CardTitle>{t('createNew')}</CardTitle>
-                </CardHeader>
-                <CardContent>
-                    <ItemForm
-                        pathways={pathways || []}
-                        types={types || []}
-                        onSubmit={handleSubmit}
-                        isSubmitting={createItem.isPending}
-                    />
-                </CardContent>
-            </Card>
-        </div>
+        </ProtectedRoute>
     )
 }

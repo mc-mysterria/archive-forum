@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { ResearcherSelector } from '@/components/researcher/researcher-selector'
-import { BookOpen, Compass, Package, Users, Plus, Globe } from 'lucide-react'
+import { BookOpen, Compass, Package, Users, Plus, Globe, LogIn, LogOut, User } from 'lucide-react'
 import { usePathname } from 'next/navigation'
 import { cn } from '@/lib/utils'
 import {
@@ -13,11 +13,20 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from '@/components/ui/sheet'
 import { useRouter } from 'next/navigation'
+import { useAuth } from '@/lib/hooks/use-auth'
 
 export function HeaderDefault() {
     const pathname = usePathname()
     const router = useRouter()
+    const { isAuthenticated, user, canWrite, logout } = useAuth()
 
     const navigation = [
         { name: 'Items', href: '/items', icon: BookOpen },
@@ -31,6 +40,11 @@ export function HeaderDefault() {
             router.push(`/uk${pathname}`)
         }
         // For 'en', we stay on the current route since it's the default
+    }
+
+    const handleLogout = () => {
+        logout()
+        router.push('/')
     }
 
     return (
@@ -78,13 +92,54 @@ export function HeaderDefault() {
                                 <SelectItem value="uk">Українська</SelectItem>
                             </SelectContent>
                         </Select>
+
                         <ResearcherSelector />
-                        <Link href="/items/new">
-                            <Button size="sm">
-                                <Plus className="h-4 w-4 mr-2" />
-                                Add Item
+
+                        {/* Add Item button - only show if user can write */}
+                        {isAuthenticated && canWrite() ? (
+                            <Link href="/items/new">
+                                <Button size="sm">
+                                    <Plus className="h-4 w-4 mr-2" />
+                                    Add Item
+                                </Button>
+                            </Link>
+                        ) : !isAuthenticated ? (
+                            <Button variant="outline" size="sm" onClick={() => router.push('/login')}>
+                                <LogIn className="h-4 w-4 mr-2" />
+                                Login to Contribute
                             </Button>
-                        </Link>
+                        ) : null}
+
+                        {/* User menu - only show if authenticated */}
+                        {isAuthenticated && user && (
+                            <Sheet>
+                                <SheetTrigger asChild>
+                                    <Button variant="ghost" size="sm">
+                                        <User className="h-4 w-4 mr-2" />
+                                        {user.username}
+                                    </Button>
+                                </SheetTrigger>
+                                <SheetContent side="right" className="w-80">
+                                    <SheetHeader>
+                                        <SheetTitle>User Menu</SheetTitle>
+                                    </SheetHeader>
+                                    <div className="mt-6 space-y-4">
+                                        <Button variant="ghost" className="w-full justify-start">
+                                            <User className="h-4 w-4 mr-2" />
+                                            Profile
+                                        </Button>
+                                        <Button
+                                            variant="ghost"
+                                            className="w-full justify-start"
+                                            onClick={handleLogout}
+                                        >
+                                            <LogOut className="h-4 w-4 mr-2" />
+                                            Logout
+                                        </Button>
+                                    </div>
+                                </SheetContent>
+                            </Sheet>
+                        )}
                     </div>
                 </div>
             </div>

@@ -6,6 +6,7 @@ import { Card, CardContent } from '@/components/ui/card'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { useDeleteComment } from '@/lib/hooks/use-comments'
 import { useResearcherStore } from '@/lib/store/researcher-store'
+import { useAuth } from '@/lib/hooks/use-auth'
 import { Button } from '@/components/ui/button'
 import { Trash2 } from 'lucide-react'
 
@@ -15,7 +16,14 @@ interface CommentListProps {
 
 export function CommentList({ comments }: CommentListProps) {
     const { researcher } = useResearcherStore()
+    const { user, canModerate } = useAuth()
     const deleteComment = useDeleteComment()
+
+    const canDeleteComment = (comment: CommentDto) => {
+        if (!user) return false
+        // User can delete if they created the comment or have moderate permissions
+        return user.id.toString() === comment.researcher.id.toString() || canModerate()
+    }
 
     if (comments.length === 0) {
         return (
@@ -50,11 +58,12 @@ export function CommentList({ comments }: CommentListProps) {
                       {formatDate(comment.createdAt)}
                     </span>
                                     </div>
-                                    {researcher?.id === comment.researcher.id && (
+                                    {canDeleteComment(comment) && (
                                         <Button
                                             variant="ghost"
                                             size="sm"
                                             onClick={() => deleteComment.mutate(comment.id)}
+                                            disabled={deleteComment.isPending}
                                         >
                                             <Trash2 className="h-4 w-4" />
                                         </Button>
