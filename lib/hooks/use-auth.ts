@@ -11,7 +11,6 @@ export function useAuth() {
     canRead,
     canWrite,
     canModerate,
-    canAdmin,
   } = useAuthStore()
 
   return {
@@ -25,6 +24,5 @@ export function useAuth() {
     canRead,
     canWrite,
     canModerate,
-    canAdmin,
   }
 }

@@ -27,7 +27,7 @@ import { useParams } from 'next/navigation'
 export default function TypesPage() {
     const { data: types, isLoading } = useTypes()
     const createType = useCreateType()
-    const { canAdmin } = useAuth()
+    const { canModerate } = useAuth()
     const t = useTranslations('types')
     const tCommon = useTranslations('common')
     const [dialogOpen, setDialogOpen] = useState(false)
@@ -61,7 +61,7 @@ export default function TypesPage() {
                         {t('subtitle')}
                     </p>
                 </div>
-                {canAdmin() && (
+                {canModerate() && (
                     <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
                         <DialogTrigger asChild>
                             <Button>
@@ -134,7 +134,7 @@ export default function TypesPage() {
             ) : types && types.length > 0 ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                     {types.map((type) => (
-                        <TypeCard key={type.id} type={type} canDelete={canAdmin()} />
+                        <TypeCard key={type.id} type={type} canDelete={canModerate()} />
                     ))}
                 </div>
             ) : (
@@ -142,7 +142,7 @@ export default function TypesPage() {
                     <CardContent className="text-center py-12">
                         <Package className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
                         <p className="text-muted-foreground mb-4">{t('noTypes')}</p>
-                        {canAdmin() && (
+                        {canModerate() && (
                             <Button onClick={() => setDialogOpen(true)}>
                                 {t('createFirst')}
                             </Button>

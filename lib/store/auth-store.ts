@@ -22,7 +22,6 @@ interface AuthState {
   canRead: () => boolean
   canWrite: () => boolean
   canModerate: () => boolean
-  canAdmin: () => boolean
 }
 
 export const useAuthStore = create<AuthState>()(
@@ -69,10 +68,6 @@ export const useAuthStore = create<AuthState>()(
         return hasPermission('PERM_ARCHIVE:MODERATE')
       },
 
-      canAdmin: () => {
-        const { hasPermission } = get()
-        return hasPermission('PERM_ARCHIVE:ADMIN')
-      },
     }),
     {
       name: 'auth-storage',

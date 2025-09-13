@@ -26,7 +26,7 @@ import { useTranslations } from 'next-intl'
 export default function PathwaysPage() {
     const { data: pathways, isLoading } = usePathways()
     const createPathway = useCreatePathway()
-    const { canAdmin } = useAuth()
+    const { canModerate } = useAuth()
     const t = useTranslations('pathways')
     const tCommon = useTranslations('common')
     const [dialogOpen, setDialogOpen] = useState(false)
@@ -60,7 +60,7 @@ export default function PathwaysPage() {
                         {t('subtitle')}
                     </p>
                 </div>
-                {canAdmin() && (
+                {canModerate() && (
                     <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
                         <DialogTrigger asChild>
                             <Button>
@@ -135,7 +135,7 @@ export default function PathwaysPage() {
             ) : pathways && pathways.length > 0 ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {pathways.map((pathway) => (
-                        <PathwayCard key={pathway.id} pathway={pathway} canDelete={canAdmin()} />
+                        <PathwayCard key={pathway.id} pathway={pathway} canDelete={canModerate()} />
                     ))}
                 </div>
             ) : (
@@ -143,7 +143,7 @@ export default function PathwaysPage() {
                     <CardContent className="text-center py-12">
                         <Compass className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
                         <p className="text-muted-foreground mb-4">{t('noPathways')}</p>
-                        {canAdmin() && (
+                        {canModerate() && (
                             <Button onClick={() => setDialogOpen(true)}>
                                 {t('createFirst')}
                             </Button>
