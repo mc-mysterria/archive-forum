@@ -4,6 +4,7 @@ import { ReactNode } from 'react'
 import { useAuth } from '@/lib/hooks/use-auth'
 import { Button } from '@/components/ui/button'
 import { LogIn } from 'lucide-react'
+import { usePathname } from 'next/navigation'
 import Link from 'next/link'
 
 interface ProtectedRouteProps {
@@ -18,6 +19,7 @@ export function ProtectedRoute({
   fallback,
 }: ProtectedRouteProps) {
   const { isAuthenticated, user, hasPermission } = useAuth()
+  const pathname = usePathname()
 
   // Not authenticated
   if (!isAuthenticated) {
@@ -29,7 +31,7 @@ export function ProtectedRoute({
             <p className="text-muted-foreground mb-6">
               Please log in to access this page.
             </p>
-            <Link href="/login">
+            <Link href={`/login?returnUrl=${encodeURIComponent(pathname)}`}>
               <Button>
                 <LogIn className="h-4 w-4 mr-2" />
                 Login

@@ -104,7 +104,11 @@ export function HeaderDefault() {
                                 </Button>
                             </Link>
                         ) : !isAuthenticated ? (
-                            <Button variant="outline" size="sm" onClick={() => router.push('/login')}>
+                            <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => router.push(`/login?returnUrl=${encodeURIComponent(pathname)}`)}
+                            >
                                 <LogIn className="h-4 w-4 mr-2" />
                                 Login to Contribute
                             </Button>
