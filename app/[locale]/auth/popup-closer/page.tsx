@@ -1,8 +1,10 @@
 'use client'
 
 import { useEffect } from 'react'
+import { useTranslations } from 'next-intl'
 
 export default function PopupCloserPage() {
+  const t = useTranslations('auth')
   useEffect(() => {
     // This page is designed to be loaded in the mysterria.net popup
     // It monitors for auth completion and closes the popup
@@ -48,13 +50,13 @@ export default function PopupCloserPage() {
       clearInterval(interval)
       clearTimeout(timeout)
     }
-  }, [])
+  }, [t])
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background to-muted/20">
       <div className="text-center">
-        <h1 className="text-xl font-semibold mb-4">Completing Authentication...</h1>
-        <p className="text-muted-foreground">This window will close automatically.</p>
+        <h1 className="text-xl font-semibold mb-4">{t('completing')}</h1>
+        <p className="text-muted-foreground">{t('completingMessage')}</p>
       </div>
     </div>
   )

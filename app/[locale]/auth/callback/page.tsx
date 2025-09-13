@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
+import { useTranslations } from 'next-intl'
 import { useAuth } from '@/lib/hooks/use-auth'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -13,6 +14,7 @@ export default function AuthCallbackPage() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const { setAuth } = useAuth()
+  const t = useTranslations('auth')
   const [status, setStatus] = useState<AuthStatus>('loading')
   const [error, setError] = useState<string>('')
 
@@ -27,13 +29,13 @@ export default function AuthCallbackPage() {
 
         if (!token) {
           setStatus('invalid_token')
-          setError('No authentication token received')
+          setError(t('invalidTokenMessage'))
 
           // If in popup, notify parent of error
           if (isPopup && window.opener) {
             window.opener.postMessage({
               type: 'MYSTERRIA_AUTH_ERROR',
-              error: 'No authentication token received'
+              error: t('invalidTokenMessage')
             }, '*')
           }
           return
@@ -45,7 +47,7 @@ export default function AuthCallbackPage() {
 
           // Validate JWT has required fields
           if (!payload.sub) {
-            throw new Error('Invalid token: missing user ID (sub)')
+            throw new Error(t('invalidTokenMessage'))
           }
 
           // For Mysterria backend tokens, we need to fetch user info from API
@@ -117,20 +119,20 @@ export default function AuthCallbackPage() {
         } catch (decodeError) {
           console.error('Token decode error:', decodeError)
           setStatus('invalid_token')
-          setError('Invalid token format')
+          setError(t('invalidTokenMessage'))
 
           // If in popup, notify parent of error
           if (isPopup && window.opener) {
             window.opener.postMessage({
               type: 'MYSTERRIA_AUTH_ERROR',
-              error: 'Invalid token format'
+              error: t('invalidTokenMessage')
             }, '*')
           }
         }
 
       } catch (err) {
         console.error('Auth callback error:', err)
-        const errorMessage = err instanceof Error ? err.message : 'Authentication failed'
+        const errorMessage = err instanceof Error ? err.message : t('authFailed')
         setStatus('error')
         setError(errorMessage)
 
@@ -163,9 +165,9 @@ export default function AuthCallbackPage() {
           <>
             <div className="flex flex-col items-center space-y-4">
               <Loader2 className="h-8 w-8 animate-spin text-primary" />
-              <h3 className="text-lg font-semibold">Completing Authentication</h3>
+              <h3 className="text-lg font-semibold">{t('completing')}</h3>
               <p className="text-sm text-muted-foreground text-center">
-                Please wait while we verify your credentials...
+                {t('completingMessage')}
               </p>
             </div>
           </>
@@ -176,9 +178,9 @@ export default function AuthCallbackPage() {
           <>
             <div className="flex flex-col items-center space-y-4">
               <CheckCircle className="h-8 w-8 text-green-500" />
-              <h3 className="text-lg font-semibold text-green-700">Authentication Successful!</h3>
+              <h3 className="text-lg font-semibold text-green-700">{t('authSuccessful')}</h3>
               <p className="text-sm text-muted-foreground text-center">
-                Welcome back! You&apos;ll be redirected shortly...
+                {t('authSuccessMessage')}
               </p>
             </div>
           </>
@@ -189,12 +191,12 @@ export default function AuthCallbackPage() {
           <>
             <div className="flex flex-col items-center space-y-4">
               <AlertCircle className="h-8 w-8 text-orange-500" />
-              <h3 className="text-lg font-semibold text-orange-700">Invalid Authentication</h3>
+              <h3 className="text-lg font-semibold text-orange-700">{t('invalidAuth')}</h3>
               <p className="text-sm text-muted-foreground text-center">
-                {error || 'The authentication token is invalid or expired.'}
+                {error || t('invalidTokenMessage')}
               </p>
               <Button onClick={handleReturnToLogin} className="mt-4">
-                Try Again
+                {t('tryAgain')}
               </Button>
             </div>
           </>
@@ -205,16 +207,16 @@ export default function AuthCallbackPage() {
           <>
             <div className="flex flex-col items-center space-y-4">
               <XCircle className="h-8 w-8 text-red-500" />
-              <h3 className="text-lg font-semibold text-red-700">Authentication Failed</h3>
+              <h3 className="text-lg font-semibold text-red-700">{t('authFailed')}</h3>
               <p className="text-sm text-muted-foreground text-center">
-                {error || 'Something went wrong during authentication.'}
+                {error || t('authFailed')}
               </p>
               <div className="flex space-x-2 mt-4">
                 <Button onClick={handleReturnToLogin} variant="outline">
-                  Try Again
+                  {t('tryAgain')}
                 </Button>
                 <Button onClick={handleGoHome}>
-                  Go to Archive
+                  {t('goToArchive')}
                 </Button>
               </div>
             </div>
@@ -227,7 +229,7 @@ export default function AuthCallbackPage() {
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background to-muted/20">
       <Card className="w-full max-w-md mx-4">
         <CardHeader className="text-center">
-          <CardTitle className="text-2xl font-bold">Mysterria Archive</CardTitle>
+          <CardTitle className="text-2xl font-bold">{t('welcomeToArchive')}</CardTitle>
         </CardHeader>
         <CardContent>
           {renderContent()}

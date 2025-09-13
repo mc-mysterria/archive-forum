@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { BookOpen, Compass, Package, Users, Plus, Globe, LogIn, LogOut, User } from 'lucide-react'
 import { usePathname } from 'next/navigation'
+import { useTranslations } from 'next-intl'
 import { cn } from '@/lib/utils'
 import {
   Select,
@@ -26,12 +27,16 @@ export function HeaderDefault() {
     const pathname = usePathname()
     const router = useRouter()
     const { isAuthenticated, user, canWrite, logout } = useAuth()
+    const t = useTranslations()
+    const tAuth = useTranslations('auth')
+    const tNav = useTranslations('nav')
+    const tLanguage = useTranslations('language')
 
     const navigation = [
-        { name: 'Items', href: '/items', icon: BookOpen },
-        { name: 'Pathways', href: '/pathways', icon: Compass },
-        { name: 'Types', href: '/types', icon: Package },
-        { name: 'Researchers', href: '/researchers', icon: Users },
+        { name: tNav('items'), href: '/items', icon: BookOpen },
+        { name: tNav('pathways'), href: '/pathways', icon: Compass },
+        { name: tNav('types'), href: '/types', icon: Package },
+        { name: tNav('researchers'), href: '/researchers', icon: Users },
     ]
 
     const handleLanguageChange = (newLocale: string) => {
@@ -62,7 +67,7 @@ export function HeaderDefault() {
         )
 
         if (!popup) {
-            alert('Please allow popups for this site to login')
+            alert(tAuth('popupBlockedMessage'))
             return
         }
 
@@ -95,7 +100,7 @@ export function HeaderDefault() {
                 window.removeEventListener('message', handleMessage)
             } else if (event.data.type === 'MYSTERRIA_AUTH_ERROR') {
                 popup.close()
-                alert(event.data.error || 'Authentication failed')
+                alert(event.data.error || tAuth('authFailed'))
                 window.removeEventListener('message', handleMessage)
             }
         }
@@ -136,7 +141,7 @@ export function HeaderDefault() {
                     <div className="flex items-center gap-8">
                         <Link href="/" className="flex items-center gap-2">
                             <BookOpen className="h-6 w-6 text-primary" />
-                            <span className="font-bold text-xl">Mysterria</span>
+                            <span className="font-bold text-xl">{tNav('mysterria')}</span>
                         </Link>
 
                         <nav className="hidden md:flex gap-6">
@@ -170,8 +175,8 @@ export function HeaderDefault() {
                                 </div>
                             </SelectTrigger>
                             <SelectContent>
-                                <SelectItem value="en">English</SelectItem>
-                                <SelectItem value="uk">Українська</SelectItem>
+                                <SelectItem value="en">{tLanguage('english')}</SelectItem>
+                                <SelectItem value="uk">{tLanguage('ukrainian')}</SelectItem>
                             </SelectContent>
                         </Select>
 
@@ -180,7 +185,7 @@ export function HeaderDefault() {
                             <Link href="/items/new">
                                 <Button size="sm">
                                     <Plus className="h-4 w-4 mr-2" />
-                                    Add Item
+                                    {tNav('addItem')}
                                 </Button>
                             </Link>
                         ) : !isAuthenticated ? (
@@ -190,7 +195,7 @@ export function HeaderDefault() {
                                 onClick={handleLogin}
                             >
                                 <LogIn className="h-4 w-4 mr-2" />
-                                Login to Contribute
+                                {tAuth('loginToContribute')}
                             </Button>
                         ) : null}
 
@@ -205,12 +210,12 @@ export function HeaderDefault() {
                                 </SheetTrigger>
                                 <SheetContent side="right" className="w-80">
                                     <SheetHeader>
-                                        <SheetTitle>User Menu</SheetTitle>
+                                        <SheetTitle>{tAuth('userMenu')}</SheetTitle>
                                     </SheetHeader>
                                     <div className="mt-6 space-y-4">
                                         <Button variant="ghost" className="w-full justify-start">
                                             <User className="h-4 w-4 mr-2" />
-                                            Profile
+                                            {tAuth('profile')}
                                         </Button>
                                         <Button
                                             variant="ghost"
@@ -218,7 +223,7 @@ export function HeaderDefault() {
                                             onClick={handleLogout}
                                         >
                                             <LogOut className="h-4 w-4 mr-2" />
-                                            Logout
+                                            {tAuth('logout')}
                                         </Button>
                                     </div>
                                 </SheetContent>

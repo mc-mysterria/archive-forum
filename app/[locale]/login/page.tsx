@@ -2,6 +2,7 @@
 
 import { useEffect } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
+import { useTranslations } from 'next-intl'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { LogIn, ArrowRight } from 'lucide-react'
@@ -9,6 +10,7 @@ import { LogIn, ArrowRight } from 'lucide-react'
 export default function LoginPage() {
   const router = useRouter()
   const searchParams = useSearchParams()
+  const t = useTranslations('auth')
 
   const handleLogin = () => {
     const authUrl = process.env.NEXT_PUBLIC_AUTH_URL || 'https://www.mysterria.net'
@@ -27,7 +29,7 @@ export default function LoginPage() {
     )
 
     if (!popup) {
-      alert('Please allow popups for this site to login')
+      alert(t('popupBlockedMessage'))
       return
     }
 
@@ -50,7 +52,7 @@ export default function LoginPage() {
       } else if (event.data.type === 'MYSTERRIA_AUTH_ERROR') {
         // Close popup and show error
         popup.close()
-        alert(event.data.error || 'Authentication failed')
+        alert(event.data.error || t('authFailed'))
         window.removeEventListener('message', handleMessage)
       }
     }
@@ -79,9 +81,9 @@ export default function LoginPage() {
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background to-muted/20">
       <Card className="w-full max-w-md mx-4">
         <CardHeader className="text-center">
-          <CardTitle className="text-2xl font-bold">Welcome to Mysterria Archive</CardTitle>
+          <CardTitle className="text-2xl font-bold">{t('welcomeToArchive')}</CardTitle>
           <p className="text-muted-foreground mt-2">
-            Sign in with your Mysterria account to contribute to the archive
+            {t('signInWithAccount')}
           </p>
         </CardHeader>
         <CardContent className="space-y-6">
@@ -89,27 +91,27 @@ export default function LoginPage() {
             <div className="inline-flex items-center justify-center w-16 h-16 bg-primary/10 rounded-full mb-4">
               <LogIn className="h-8 w-8 text-primary" />
             </div>
-            <h3 className="text-lg font-semibold mb-2">Authentication Required</h3>
+            <h3 className="text-lg font-semibold mb-2">{t('authenticationRequired')}</h3>
             <p className="text-sm text-muted-foreground mb-6">
-              You&apos;ll be redirected to the main Mysterria site to sign in securely.
+              {t('redirectMessage')}
             </p>
           </div>
 
           <Button onClick={handleLogin} className="w-full" size="lg">
-            Continue to Mysterria Login
+            {t('continueToLogin')}
             <ArrowRight className="ml-2 h-4 w-4" />
           </Button>
 
           <div className="text-center">
             <p className="text-xs text-muted-foreground">
-              Don&apos;t have an account?{' '}
+              {t('noAccount')}{' '}
               <a
                 href={`${process.env.NEXT_PUBLIC_AUTH_URL || 'https://www.mysterria.net'}/register`}
                 className="text-primary hover:underline"
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                Create one on Mysterria
+                {t('createOnMysterria')}
               </a>
             </p>
           </div>

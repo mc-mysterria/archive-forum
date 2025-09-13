@@ -2,6 +2,7 @@
 
 import { useAuth } from '@/lib/hooks/use-auth'
 import { useRouter, usePathname } from 'next/navigation'
+import { useTranslations } from 'next-intl'
 import { Button } from '@/components/ui/button'
 import { LanguageSelector } from '@/components/ui/language-selector'
 import { LogIn, LogOut, User, Plus } from 'lucide-react'
@@ -18,6 +19,7 @@ export function HeaderClientWrapper() {
     const { isAuthenticated, user, logout, canWrite } = useAuth()
     const router = useRouter()
     const pathname = usePathname()
+    const tAuth = useTranslations('auth')
 
     const handleLogout = () => {
         logout()
@@ -40,7 +42,7 @@ export function HeaderClientWrapper() {
         )
 
         if (!popup) {
-            alert('Please allow popups for this site to login')
+            alert(tAuth('popupBlockedMessage'))
             return
         }
 
@@ -73,7 +75,7 @@ export function HeaderClientWrapper() {
                 window.removeEventListener('message', handleMessage)
             } else if (event.data.type === 'MYSTERRIA_AUTH_ERROR') {
                 popup.close()
-                alert(event.data.error || 'Authentication failed')
+                alert(event.data.error || tAuth('authFailed'))
                 window.removeEventListener('message', handleMessage)
             }
         }
@@ -123,12 +125,12 @@ export function HeaderClientWrapper() {
                     </SheetTrigger>
                     <SheetContent side="right" className="w-80">
                         <SheetHeader>
-                            <SheetTitle>User Menu</SheetTitle>
+                            <SheetTitle>{tAuth('userMenu')}</SheetTitle>
                         </SheetHeader>
                         <div className="mt-6 space-y-4">
                             <Button variant="ghost" className="w-full justify-start">
                                 <User className="h-4 w-4 mr-2" />
-                                Profile
+                                {tAuth('profile')}
                             </Button>
                             <Button
                                 variant="ghost"
@@ -136,7 +138,7 @@ export function HeaderClientWrapper() {
                                 onClick={handleLogout}
                             >
                                 <LogOut className="h-4 w-4 mr-2" />
-                                Logout
+                                {tAuth('logout')}
                             </Button>
                         </div>
                     </SheetContent>
@@ -149,7 +151,7 @@ export function HeaderClientWrapper() {
                     onClick={handleLogin}
                 >
                     <LogIn className="h-4 w-4 mr-2" />
-                    <span className="hidden md:inline">Login</span>
+                    <span className="hidden md:inline">{tAuth('login')}</span>
                 </Button>
             )}
         </>
