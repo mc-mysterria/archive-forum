@@ -5,6 +5,7 @@ import { useTranslations } from 'next-intl'
 import { useResearcherStore } from '@/lib/store/researcher-store'
 import { useCreateResearcher } from '@/lib/hooks/use-researchers'
 import { researchersApi } from '@/lib/api/researchers'
+import { useAuth } from '@/lib/hooks/use-auth'
 import { Button } from '@/components/ui/button'
 import {
     Dialog,
@@ -23,6 +24,7 @@ import { useToast } from '@/components/ui/use-toast'
 export function ResearcherSelector() {
     const { researcher, setResearcher } = useResearcherStore()
     const createResearcher = useCreateResearcher()
+    const { user, isAuthenticated } = useAuth()
     const t = useTranslations('researchers')
     const tForm = useTranslations('form')
     const { toast } = useToast()
@@ -32,34 +34,62 @@ export function ResearcherSelector() {
     useEffect(() => {
         const loadStoredResearcher = async () => {
             if (!researcher) {
-                const storedNickname = localStorage.getItem('researcher-nickname')
-                if (storedNickname) {
+                // If user is authenticated, use their username
+                if (isAuthenticated && user?.username) {
                     try {
-                        const existingResearcher = await researchersApi.getByNickname(storedNickname)
+                        // Try to find existing researcher by username
+                        let existingResearcher
+                        try {
+                            existingResearcher = await researchersApi.getByNickname(user.username)
+                        } catch (error) {
+                            // Researcher doesn't exist, create new one automatically
+                            existingResearcher = await createResearcher.mutateAsync({ nickname: user.username })
+                            toast({
+                                title: t('welcome'),
+                                description: `${t('createdProfile')} ${user.username}`,
+                            })
+                        }
+
                         setResearcher(existingResearcher)
+                        localStorage.setItem('researcher-nickname', user.username)
                     } catch (error) {
-                        // Researcher no longer exists, clear storage and show dialog
-                        localStorage.removeItem('researcher-nickname')
-                        setOpen(true)
+                        console.error('Failed to create/load researcher:', error)
+                        setOpen(true) // Fallback to manual entry
                     }
                 } else {
-                    setOpen(true)
+                    // Fallback: check for stored nickname (for backwards compatibility)
+                    const storedNickname = localStorage.getItem('researcher-nickname')
+                    if (storedNickname) {
+                        try {
+                            const existingResearcher = await researchersApi.getByNickname(storedNickname)
+                            setResearcher(existingResearcher)
+                        } catch (error) {
+                            // Researcher no longer exists, clear storage and show dialog
+                            localStorage.removeItem('researcher-nickname')
+                            setOpen(true)
+                        }
+                    } else {
+                        setOpen(true)
+                    }
                 }
             }
         }
-        
+
         loadStoredResearcher()
-    }, [researcher, setResearcher])
+    }, [researcher, setResearcher, isAuthenticated, user?.username, createResearcher, t, toast])
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
-        if (nickname.trim().length < 2) return
+
+        // Use authenticated username or fallback to manual input
+        const finalNickname = (isAuthenticated && user?.username) ? user.username : nickname
+        if (finalNickname.trim().length < 2) return
 
         try {
             // First, try to get an existing researcher by nickname
             let existingResearcher
             try {
-                existingResearcher = await researchersApi.getByNickname(nickname)
+                existingResearcher = await researchersApi.getByNickname(finalNickname)
             } catch (error) {
                 // Researcher doesn't exist, will create new one
                 existingResearcher = null
@@ -68,21 +98,21 @@ export function ResearcherSelector() {
             if (existingResearcher) {
                 // Use existing researcher
                 setResearcher(existingResearcher)
-                localStorage.setItem('researcher-nickname', nickname)
+                localStorage.setItem('researcher-nickname', finalNickname)
                 setOpen(false)
                 toast({
                     title: t('welcomeBack'),
-                    description: `${t('signedInAs')} ${nickname}`,
+                    description: `${t('signedInAs')} ${finalNickname}`,
                 })
             } else {
                 // Create new researcher
-                const newResearcher = await createResearcher.mutateAsync({ nickname })
+                const newResearcher = await createResearcher.mutateAsync({ nickname: finalNickname })
                 setResearcher(newResearcher)
-                localStorage.setItem('researcher-nickname', nickname)
+                localStorage.setItem('researcher-nickname', finalNickname)
                 setOpen(false)
                 toast({
                     title: t('welcome'),
-                    description: `${t('createdProfile')} ${nickname}`,
+                    description: `${t('createdProfile')} ${finalNickname}`,
                 })
             }
         } catch (error) {
@@ -117,12 +147,13 @@ export function ResearcherSelector() {
                             <Label htmlFor="nickname">{tForm('nicknameLabel')}</Label>
                             <Input
                                 id="nickname"
-                                value={nickname}
+                                value={nickname || (isAuthenticated && user?.username ? user.username : '')}
                                 onChange={(e) => setNickname(e.target.value)}
                                 placeholder={tForm('nicknamePlaceholder')}
                                 minLength={2}
                                 maxLength={50}
                                 required
+                                disabled={isAuthenticated && user?.username ? true : false}
                             />
                         </div>
                     </div>
