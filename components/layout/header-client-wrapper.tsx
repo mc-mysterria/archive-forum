@@ -5,8 +5,9 @@ import { useRouter, usePathname } from 'next/navigation'
 import { useTranslations } from 'next-intl'
 import { Button } from '@/components/ui/button'
 import { LanguageSelector } from '@/components/ui/language-selector'
-import { LogIn, LogOut, User, Plus, Shield, Settings, Package, Compass } from 'lucide-react'
+import { LogIn, LogOut, User, Plus, Shield, Settings, Package, Compass, Activity } from 'lucide-react'
 import Link from 'next/link'
+import { useResearcherStore } from '@/lib/store/researcher-store'
 import {
   Sheet,
   SheetContent,
@@ -17,6 +18,7 @@ import {
 
 export function HeaderClientWrapper() {
     const { isAuthenticated, user, logout, canWrite, canModerate } = useAuth()
+    const { researcher } = useResearcherStore()
     const router = useRouter()
     const pathname = usePathname()
     const tAuth = useTranslations('auth')
@@ -146,10 +148,12 @@ export function HeaderClientWrapper() {
                                     </span>
                                 )}
                             </div>
-                            <Button variant="ghost" className="w-full justify-start">
-                                <User className="h-4 w-4 mr-2" />
-                                {tAuth('profile')}
-                            </Button>
+                            <Link href={researcher ? `/researchers/${researcher.id}` : '/researchers'}>
+                                <Button variant="ghost" className="w-full justify-start">
+                                    <User className="h-4 w-4 mr-2" />
+                                    {tAuth('profile')}
+                                </Button>
+                            </Link>
 
                             {canModerate() && (
                                 <>
@@ -159,6 +163,12 @@ export function HeaderClientWrapper() {
                                             Moderation
                                         </div>
                                     </div>
+                                    <Link href="/moderation/actions">
+                                        <Button variant="ghost" className="w-full justify-start">
+                                            <Activity className="h-4 w-4 mr-2" />
+                                            Action Logs
+                                        </Button>
+                                    </Link>
                                     <Link href="/pathways">
                                         <Button variant="ghost" className="w-full justify-start">
                                             <Compass className="h-4 w-4 mr-2" />

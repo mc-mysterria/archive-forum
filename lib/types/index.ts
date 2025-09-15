@@ -81,6 +81,21 @@ export interface CreateResearcherRequest {
     nickname: string
 }
 
+export type ActionType =
+    | 'CREATE_COMMENT' | 'EDIT_COMMENT' | 'DELETE_COMMENT'
+    | 'CREATE_ITEM' | 'EDIT_ITEM' | 'DELETE_ITEM'
+    | 'CREATE_PATHWAY' | 'EDIT_PATHWAY' | 'DELETE_PATHWAY'
+    | 'CREATE_TYPE' | 'EDIT_TYPE' | 'DELETE_TYPE'
+    | 'CREATE_RESEARCHER' | 'EDIT_RESEARCHER' | 'DELETE_RESEARCHER'
+    | 'CREATE_ACTION' | 'EDIT_ACTION' | 'DELETE_ACTION'
+
+export interface ActionDto {
+    id: number
+    actionType: ActionType
+    createdAt: string
+    researcher: ResearcherDto
+}
+
 export interface FilterState {
     search: string
     pathwayIds: number[]
