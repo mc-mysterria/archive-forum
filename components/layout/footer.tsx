@@ -8,22 +8,22 @@ export function Footer() {
                     </p>
                     <div className="flex gap-6">
                         <a
-                            href="/developers/ikeepcalm"
+                            href="https://api.mysterria.net/archive/mvc"
                             className="text-sm text-muted-foreground hover:text-primary"
                         >
                             ikeepcalm
                         </a>
                         <a
-                            href="/developers/esfer"
+                            href="https://api.mysterria.net/archive/mvc"
                             className="text-sm text-muted-foreground hover:text-primary"
                         >
-                            esfer
+                            Esfer
                         </a>
                         <a
-                            href="/developers/djecka"
+                            href="https://api.mysterria.net/archive/mvc"
                             className="text-sm text-muted-foreground hover:text-primary"
                         >
-                            djecka
+                            Djecka
                         </a>
                     </div>
                 </div>
