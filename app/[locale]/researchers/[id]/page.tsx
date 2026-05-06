@@ -6,20 +6,21 @@ import { useResearcher } from '@/lib/hooks/use-researchers'
 import { useItemsByResearcher } from '@/lib/hooks/use-items'
 import { useCommentsByResearcher } from '@/lib/hooks/use-comments'
 import { ItemCard } from '@/components/items/item-card'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Avatar, AvatarFallback } from '@/components/ui/avatar'
-import { Button } from '@/components/ui/button'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { Calendar, ChevronLeft } from 'lucide-react'
+import { TarotCard } from '@/components/ui/tarot-card'
 import { formatDate } from '@/lib/utils'
 import Link from 'next/link'
+import { useState } from 'react'
+
+const CARD_ROTATIONS = [-1.1, 0.6, -0.7, 0.9, -0.4, 1.0, -0.8, 0.5]
 
 export default function ResearcherProfilePage() {
     const params = useParams()
     const t = useTranslations('researchers')
     const tComments = useTranslations('comments')
+    const tUi = useTranslations('ui')
     const locale = params.locale as string
     const researcherId = parseInt(params.id as string)
+    const [activeTab, setActiveTab] = useState<'items' | 'comments'>('items')
 
     const { data: researcher, isLoading } = useResearcher(researcherId)
     const { data: items } = useItemsByResearcher(researcherId)
@@ -27,133 +28,240 @@ export default function ResearcherProfilePage() {
 
     if (isLoading) {
         return (
-            <div className="container mx-auto px-4 py-8">
-                <Card className="animate-pulse">
-                    <CardContent className="h-96" />
-                </Card>
+            <div style={{ display: 'grid', gridTemplateColumns: '300px 1fr', gap: 56, padding: '24px 56px 80px', position: 'relative', zIndex: 1 }}>
+                <div style={{ aspectRatio: '5/8', background: 'var(--velvet-2)', borderRadius: 6, opacity: 0.5 }} />
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
+                    {Array.from({ length: 3 }).map((_, i) => (
+                        <div key={i} style={{ height: 80, background: 'var(--velvet-2)', borderRadius: 4, opacity: 0.4 }} />
+                    ))}
+                </div>
             </div>
         )
     }
 
     if (!researcher) {
         return (
-            <div className="container mx-auto px-4 py-8">
-                <Card>
-                    <CardContent className="text-center py-12">
-                        <p className="text-muted-foreground">{t('notFound')}</p>
-                        <Link href={`/${locale}/researchers`}>
-                            <Button className="mt-4">{t('backToResearchers')}</Button>
-                        </Link>
-                    </CardContent>
-                </Card>
+            <div style={{ padding: '80px 56px', textAlign: 'center', position: 'relative', zIndex: 1 }}>
+                <div style={{ fontFamily: '"IM Fell English SC", serif', letterSpacing: '0.2em', color: '#7a7058' }}>
+                    {t('notFound')}
+                </div>
+                <Link href={`/${locale}/researchers`} className="btn-velvet" style={{ display: 'inline-flex', marginTop: 20 }}>
+                    {tUi('returnToClub')}
+                </Link>
             </div>
         )
     }
 
+    const initials = researcher.nickname.slice(0, 2).toUpperCase()
+
     return (
-        <div className="container mx-auto px-4 py-8 max-w-5xl">
-            <div className="mb-6">
-                <Link href={`/${locale}/researchers`}>
-                    <Button variant="ghost" size="sm">
-                        <ChevronLeft className="h-4 w-4 mr-2" />
-                        {t('backToResearchers')}
-                    </Button>
-                </Link>
+        <div style={{ position: 'relative', zIndex: 1, maxWidth: 1400, margin: '0 auto' }}>
+            {/* Breadcrumb */}
+            <div style={{ padding: '22px 56px 0' }}>
+                <div style={{ color: '#7a7058', fontFamily: '"IM Fell English SC", serif', letterSpacing: '0.16em', fontSize: 12 }}>
+                    <Link href={`/${locale}/researchers`} style={{ color: '#a89b78', textDecoration: 'none' }}>{t('title')}</Link>
+                    {' '}· <span style={{ color: '#e9dfc3' }}>{researcher.nickname}</span>
+                </div>
             </div>
 
-            <Card className="mb-6">
-                <CardHeader>
-                    <div className="flex items-center gap-4">
-                        <Avatar className="h-20 w-20">
-                            <AvatarFallback className="text-2xl">
-                                {researcher.nickname.slice(0, 2).toUpperCase()}
-                            </AvatarFallback>
-                        </Avatar>
-                        <div>
-                            <CardTitle className="text-2xl">{researcher.nickname}</CardTitle>
-                            <div className="text-sm text-muted-foreground flex items-center gap-1 mt-1">
-                                <Calendar className="h-3 w-3" />
-                                {t('researcherSince')} {formatDate(researcher.createdAt)}
+            {/* Detail grid */}
+            <div style={{ display: 'grid', gridTemplateColumns: '300px 1fr', gap: 56, padding: '24px 56px 80px' }}>
+                {/* Sticky identity card */}
+                <div className="tc-hover-wrap" style={{ aspectRatio: '5/8', position: 'sticky', top: 24, alignSelf: 'start' }}>
+                    <TarotCard
+                        rotation={-1}
+                        style={{
+                            height: '100%',
+                            padding: '28px 22px',
+                            display: 'flex',
+                            flexDirection: 'column',
+                            alignItems: 'center',
+                        }}
+                    >
+                        {/* Header */}
+                        <div style={{ fontFamily: '"IM Fell English SC", serif', letterSpacing: '0.3em', fontSize: 10, color: 'var(--gold-deep)', marginBottom: 14 }}>
+                            — {tUi('investigatorDossier')} —
+                        </div>
+
+                        {/* Avatar */}
+                        <div style={{
+                            width: 88,
+                            height: 88,
+                            borderRadius: '50%',
+                            border: '2px solid var(--gold-deep)',
+                            background: 'var(--velvet-3)',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            fontFamily: '"IM Fell English", serif',
+                            fontSize: 32,
+                            color: 'var(--gold-soft)',
+                            boxShadow: '0 0 30px rgba(217,183,106,.18)',
+                            flexShrink: 0,
+                            marginBottom: 18,
+                        }}>
+                            {initials}
+                        </div>
+
+                        {/* Name */}
+                        <div style={{
+                            fontFamily: '"IM Fell English", serif',
+                            fontSize: 28,
+                            color: 'var(--ink)',
+                            textAlign: 'center',
+                            lineHeight: 1,
+                            marginBottom: 6,
+                        }}>
+                            {researcher.nickname}
+                        </div>
+                        <div style={{
+                            fontFamily: '"EB Garamond", serif',
+                            fontStyle: 'italic',
+                            color: 'var(--ink-2)',
+                            fontSize: 13,
+                            textAlign: 'center',
+                            marginBottom: 20,
+                        }}>
+                            {tUi('memberOfClub')}
+                        </div>
+
+                        {/* Meta grid */}
+                        <div style={{
+                            width: '100%',
+                            paddingTop: 16,
+                            borderTop: '1px solid var(--gold-deep)',
+                            display: 'grid',
+                            gridTemplateColumns: '1fr 1fr',
+                            gap: '10px 14px',
+                            fontFamily: '"IM Fell English SC", serif',
+                            letterSpacing: '0.1em',
+                            fontSize: 10,
+                            color: 'var(--ink-2)',
+                        }}>
+                            <div>
+                                <span style={{ fontSize: 9 }}>{tUi('enrolled').toUpperCase()}</span>
+                                <div style={{ color: 'var(--ink)', fontSize: 12, letterSpacing: '0.04em', fontWeight: 500 }}>
+                                    {formatDate(researcher.createdAt).split(',')[0]}
+                                </div>
+                            </div>
+                            <div>
+                                <span style={{ fontSize: 9 }}>{tUi('cardsDrawn')}</span>
+                                <div style={{ color: 'var(--ink)', fontSize: 12, letterSpacing: '0.04em', fontWeight: 500 }}>
+                                    {items?.length ?? 0}
+                                </div>
+                            </div>
+                            <div>
+                                <span style={{ fontSize: 9 }}>{tUi('marginalia')}</span>
+                                <div style={{ color: 'var(--ink)', fontSize: 12, letterSpacing: '0.04em', fontWeight: 500 }}>
+                                    {comments?.length ?? 0}
+                                </div>
+                            </div>
+                            <div>
+                                <span style={{ fontSize: 9 }}>{tUi('statusLabel')}</span>
+                                <div style={{ color: 'var(--gold-soft)', fontSize: 12, letterSpacing: '0.04em', fontWeight: 500 }}>
+                                    {tUi('active')}
+                                </div>
                             </div>
                         </div>
-                    </div>
-                </CardHeader>
-                <CardContent>
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                        <Card>
-                            <CardContent className="pt-6">
-                                <div className="text-2xl font-bold text-center">
-                                    {items?.length || 0}
-                                </div>
-                                <p className="text-xs text-muted-foreground text-center">
-                                    {t('itemsCreated')}
-                                </p>
-                            </CardContent>
-                        </Card>
-                        <Card>
-                            <CardContent className="pt-6">
-                                <div className="text-2xl font-bold text-center">
-                                    {comments?.length || 0}
-                                </div>
-                                <p className="text-xs text-muted-foreground text-center">
-                                    {tComments('title')}
-                                </p>
-                            </CardContent>
-                        </Card>
-                    </div>
-                </CardContent>
-            </Card>
+                    </TarotCard>
+                </div>
 
-            <Tabs defaultValue="items">
-                <TabsList className="grid w-full grid-cols-2">
-                    <TabsTrigger value="items">{t('itemsCreated')} ({items?.length || 0})</TabsTrigger>
-                    <TabsTrigger value="comments">{tComments('title')} ({comments?.length || 0})</TabsTrigger>
-                </TabsList>
+                {/* Scrollable body */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 30 }}>
+                    {/* Tabs */}
+                    <div style={{ display: 'flex', gap: 0, borderBottom: '1px solid var(--line)' }}>
+                        {(['items', 'comments'] as const).map(tab => (
+                            <button
+                                key={tab}
+                                onClick={() => setActiveTab(tab)}
+                                style={{
+                                    padding: '12px 28px',
+                                    background: 'transparent',
+                                    border: 'none',
+                                    borderBottom: activeTab === tab ? '2px solid var(--gold-soft)' : '2px solid transparent',
+                                    color: activeTab === tab ? '#f0e6cf' : '#7a7058',
+                                    fontFamily: '"IM Fell English SC", serif',
+                                    letterSpacing: '0.2em',
+                                    fontSize: 11,
+                                    cursor: 'pointer',
+                                    transition: 'color 0.15s',
+                                    marginBottom: -1,
+                                }}
+                            >
+                                {tab === 'items'
+                                    ? `— ${tUi('cardsDrawn')} · ${items?.length ?? 0} —`
+                                    : `— ${tUi('marginalia')} · ${comments?.length ?? 0} —`}
+                            </button>
+                        ))}
+                    </div>
 
-                <TabsContent value="items" className="mt-6">
-                    {items && items.length > 0 ? (
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                            {items.map((item) => (
-                                <ItemCard key={item.id} item={item} />
-                            ))}
-                        </div>
-                    ) : (
-                        <Card>
-                            <CardContent className="text-center py-12">
-                                <p className="text-muted-foreground">{t('noItemsCreated')}</p>
-                            </CardContent>
-                        </Card>
+                    {/* Items tab */}
+                    {activeTab === 'items' && (
+                        items && items.length > 0 ? (
+                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 22 }}>
+                                {items.map((item, i) => (
+                                    <ItemCard
+                                        key={item.id}
+                                        item={item}
+                                        rotation={CARD_ROTATIONS[i % CARD_ROTATIONS.length]}
+                                    />
+                                ))}
+                            </div>
+                        ) : (
+                            <div style={{ textAlign: 'center', padding: '60px 0' }}>
+                                <div style={{ fontFamily: '"IM Fell English SC", serif', letterSpacing: '0.2em', fontSize: 13, color: '#7a7058' }}>
+                                    {tUi('noCardDrawn')}
+                                </div>
+                            </div>
+                        )
                     )}
-                </TabsContent>
 
-                <TabsContent value="comments" className="mt-6">
-                    {comments && comments.length > 0 ? (
-                        <div className="space-y-4">
-                            {comments.map((comment) => (
-                                <Card key={comment.id}>
-                                    <CardContent className="pt-6">
-                                        <div className="flex justify-between items-start mb-2">
-                                            <Link href={`/${locale}/items/${comment.id}`} className="font-semibold hover:underline">
-                                                {t('itemNumber')}{comment.id}
+                    {/* Comments tab */}
+                    {activeTab === 'comments' && (
+                        comments && comments.length > 0 ? (
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+                                {comments.map(comment => (
+                                    <div
+                                        key={comment.id}
+                                        style={{
+                                            padding: 16,
+                                            border: '1px solid var(--line)',
+                                            background: 'rgba(255,255,255,.02)',
+                                        }}
+                                    >
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 }}>
+                                            <Link
+                                                href={`/${locale}/items/${comment.id}`}
+                                                style={{
+                                                    fontFamily: '"IM Fell English SC", serif',
+                                                    letterSpacing: '0.1em',
+                                                    fontSize: 11,
+                                                    color: 'var(--gold-soft)',
+                                                    textDecoration: 'none',
+                                                }}
+                                            >
+                                                {tUi('onItemRef', { id: comment.id })}
                                             </Link>
-                                            <span className="text-xs text-muted-foreground">
-                        {formatDate(comment.createdAt)}
-                      </span>
+                                            <span style={{ marginLeft: 'auto', color: '#7a7058', fontSize: 11, fontFamily: '"IM Fell English SC", serif', letterSpacing: '0.1em' }}>
+                                                {formatDate(comment.createdAt)}
+                                            </span>
                                         </div>
-                                        <p className="text-sm">{comment.content}</p>
-                                    </CardContent>
-                                </Card>
-                            ))}
-                        </div>
-                    ) : (
-                        <Card>
-                            <CardContent className="text-center py-12">
-                                <p className="text-muted-foreground">{t('noCommentsYet')}</p>
-                            </CardContent>
-                        </Card>
+                                        <div style={{ color: '#c5b890', fontSize: 15, lineHeight: 1.5, fontFamily: '"EB Garamond", serif' }}>
+                                            {comment.content}
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        ) : (
+                            <div style={{ textAlign: 'center', padding: '60px 0' }}>
+                                <div style={{ fontFamily: '"IM Fell English SC", serif', letterSpacing: '0.2em', fontSize: 13, color: '#7a7058' }}>
+                                    {tUi('noMarginaliaWritten')}
+                                </div>
+                            </div>
+                        )
                     )}
-                </TabsContent>
-            </Tabs>
+                </div>
+            </div>
         </div>
     )
 }

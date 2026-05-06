@@ -1,101 +1,190 @@
 'use client'
 
-import {useResearchers} from '@/lib/hooks/use-researchers'
-import {useItemsByResearcher} from '@/lib/hooks/use-items'
-import {useCommentsByResearcher} from '@/lib/hooks/use-comments'
-import {Card, CardContent, CardDescription, CardHeader, CardTitle} from '@/components/ui/card'
-import {Avatar, AvatarFallback} from '@/components/ui/avatar'
-import {Button} from '@/components/ui/button'
-import {BookOpen, Calendar, MessageSquare, Users} from 'lucide-react'
-import {formatDate} from '@/lib/utils'
+import { useResearchers } from '@/lib/hooks/use-researchers'
+import { useItemsByResearcher } from '@/lib/hooks/use-items'
+import { useCommentsByResearcher } from '@/lib/hooks/use-comments'
+import { TarotCard } from '@/components/ui/tarot-card'
+import { formatDate } from '@/lib/utils'
 import Link from 'next/link'
 import { useTranslations } from 'next-intl'
 
+const ROTATIONS = [-1.1, 0.7, -0.5, 1.2, -0.8, 0.4, -1.3, 0.6]
+
 export default function ResearchersPage() {
-    const {data: researchers, isLoading} = useResearchers()
+    const { data: researchers, isLoading } = useResearchers()
     const t = useTranslations('researchers')
+    const tUi = useTranslations('ui')
 
     return (
-        <div className="container mx-auto px-4 py-8">
-            <div className="mb-6">
-                <h1 className="text-3xl font-bold">{t('title')}</h1>
-                <p className="text-muted-foreground mt-2">
-                    {t('subtitle')}
-                </p>
+        <div style={{ position: 'relative', zIndex: 1, maxWidth: 1400, margin: '0 auto' }}>
+            {/* Page head */}
+            <div style={{ padding: '42px 56px 24px', textAlign: 'center' }}>
+                <div style={{ fontFamily: '"IM Fell English SC", serif', letterSpacing: '0.4em', fontSize: 12, color: 'var(--gold-soft)' }}>
+                    — {tUi('tarotClub')} —
+                </div>
+                <h1 style={{
+                    fontFamily: '"IM Fell English", serif',
+                    fontWeight: 400,
+                    color: '#f0e6cf',
+                    fontSize: 54,
+                    lineHeight: 1,
+                    margin: '8px 0',
+                }}>
+                    {t('title')}
+                </h1>
+                <div style={{ fontFamily: '"EB Garamond", serif', fontStyle: 'italic', color: '#a89b78' }}>
+                    {tUi('researchersSubtitle')}
+                </div>
             </div>
 
+            {/* Grid */}
             {isLoading ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {[...Array(6)].map((_, i) => (
-                        <Card key={i} className="animate-pulse">
-                            <CardContent className="h-48"/>
-                        </Card>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 28, padding: '8px 56px 80px' }}>
+                    {Array.from({ length: 8 }).map((_, i) => (
+                        <div key={i} style={{ aspectRatio: '5/8', background: 'var(--velvet-2)', borderRadius: 6, opacity: 0.4 }} />
                     ))}
                 </div>
             ) : researchers && researchers.length > 0 ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {researchers.map((researcher) => (
-                        <ResearcherCard key={researcher.id} researcher={researcher}/>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 28, padding: '8px 56px 80px' }}>
+                    {researchers.map((researcher, i) => (
+                        <ResearcherCard
+                            key={researcher.id}
+                            researcher={researcher}
+                            rotation={ROTATIONS[i % ROTATIONS.length]}
+                        />
                     ))}
                 </div>
             ) : (
-                <Card>
-                    <CardContent className="text-center py-12">
-                        <Users className="h-12 w-12 mx-auto mb-4 text-muted-foreground"/>
-                        <p className="text-muted-foreground">{t('noResearchers')}</p>
-                    </CardContent>
-                </Card>
+                <div style={{ padding: '80px 56px', textAlign: 'center' }}>
+                    <div style={{ fontFamily: '"IM Fell English SC", serif', letterSpacing: '0.2em', fontSize: 14, color: '#7a7058' }}>
+                        {tUi('noResearchersEnrolled')}
+                    </div>
+                </div>
             )}
         </div>
     )
 }
 
-function ResearcherCard({researcher}: { researcher: any }) {
-    const {data: items} = useItemsByResearcher(researcher.id)
-    const {data: comments} = useCommentsByResearcher(researcher.id)
-    const t = useTranslations('researchers')
+function ResearcherCard({ researcher, rotation }: { researcher: any; rotation: number }) {
+    const { data: items } = useItemsByResearcher(researcher.id)
+    const { data: comments } = useCommentsByResearcher(researcher.id)
+    const tUi = useTranslations('ui')
+    const tRes = useTranslations('researchers')
+    const initials = researcher.nickname.slice(0, 2).toUpperCase()
 
     return (
-        <Card className="hover:shadow-lg transition-all">
-            <CardHeader>
-                <div className="flex items-center gap-4">
-                    <Avatar className="h-12 w-12">
-                        <AvatarFallback>
-                            {researcher.nickname.slice(0, 2).toUpperCase()}
-                        </AvatarFallback>
-                    </Avatar>
-                    <div>
-                        <CardTitle>{researcher.nickname}</CardTitle>
-                        <CardDescription className="flex items-center gap-1">
-                            <Calendar className="h-3 w-3"/>
-                            {t('joined')} {formatDate(researcher.createdAt)}
-                        </CardDescription>
+        <div className="tc-hover-wrap">
+            <Link href={`/researchers/${researcher.id}`} style={{ display: 'block', aspectRatio: '5/8', textDecoration: 'none' }}>
+                <TarotCard
+                    rotation={rotation}
+                    style={{
+                        height: '100%',
+                        padding: '22px 18px',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        alignItems: 'center',
+                    }}
+                >
+                    {/* Header ornament */}
+                    <div style={{ fontFamily: '"IM Fell English SC", serif', letterSpacing: '0.3em', fontSize: 10, color: 'var(--gold-deep)', marginBottom: 10 }}>
+                        — {tUi('investigator')} —
                     </div>
-                </div>
-            </CardHeader>
-            <CardContent>
-                <div className="grid grid-cols-2 gap-4 mb-4">
-                    <div className="text-center">
-                        <div className="text-2xl font-bold">{items?.length || 0}</div>
-                        <div className="text-xs text-muted-foreground flex items-center justify-center gap-1">
-                            <BookOpen className="h-3 w-3"/>
-                            Items
+
+                    {/* Avatar sigil */}
+                    <div style={{
+                        width: 72,
+                        height: 72,
+                        borderRadius: '50%',
+                        border: '2px solid var(--gold-deep)',
+                        background: 'var(--velvet-3)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        fontFamily: '"IM Fell English", serif',
+                        fontSize: 26,
+                        color: 'var(--gold-soft)',
+                        boxShadow: '0 0 20px rgba(217,183,106,.15)',
+                        flexShrink: 0,
+                        marginBottom: 14,
+                    }}>
+                        {initials}
+                    </div>
+
+                    {/* Name */}
+                    <div style={{
+                        fontFamily: '"IM Fell English", serif',
+                        fontSize: 22,
+                        color: 'var(--ink)',
+                        textAlign: 'center',
+                        lineHeight: 1.1,
+                        marginBottom: 6,
+                    }}>
+                        {researcher.nickname}
+                    </div>
+
+                    {/* Join date */}
+                    <div style={{
+                        fontFamily: '"EB Garamond", serif',
+                        fontStyle: 'italic',
+                        color: 'var(--ink-2)',
+                        fontSize: 12,
+                        textAlign: 'center',
+                        marginBottom: 18,
+                    }}>
+                        {tUi('enrolled')} {formatDate(researcher.createdAt).split(',')[0]}
+                    </div>
+
+                    {/* Divider */}
+                    <div style={{ width: '80%', borderTop: '1px solid var(--gold-deep)', marginBottom: 16 }} />
+
+                    {/* Stats */}
+                    <div style={{
+                        display: 'grid',
+                        gridTemplateColumns: '1fr 1fr',
+                        gap: 10,
+                        width: '100%',
+                        textAlign: 'center',
+                    }}>
+                        <div style={{
+                            padding: '10px 8px',
+                            border: '1px solid var(--line)',
+                            background: 'linear-gradient(180deg, rgba(217,183,106,.04), transparent)',
+                        }}>
+                            <div style={{ fontFamily: '"IM Fell English", serif', fontSize: 24, color: '#f0e6cf', lineHeight: 1 }}>
+                                {items?.length ?? 0}
+                            </div>
+                            <div style={{ fontFamily: '"IM Fell English SC", serif', letterSpacing: '0.15em', fontSize: 9, color: 'var(--ink-2)', marginTop: 4 }}>
+                                {tUi('cards')}
+                            </div>
+                        </div>
+                        <div style={{
+                            padding: '10px 8px',
+                            border: '1px solid var(--line)',
+                            background: 'linear-gradient(180deg, rgba(217,183,106,.04), transparent)',
+                        }}>
+                            <div style={{ fontFamily: '"IM Fell English", serif', fontSize: 24, color: '#f0e6cf', lineHeight: 1 }}>
+                                {comments?.length ?? 0}
+                            </div>
+                            <div style={{ fontFamily: '"IM Fell English SC", serif', letterSpacing: '0.15em', fontSize: 9, color: 'var(--ink-2)', marginTop: 4 }}>
+                                {tUi('marginalia')}
+                            </div>
                         </div>
                     </div>
-                    <div className="text-center">
-                        <div className="text-2xl font-bold">{comments?.length || 0}</div>
-                        <div className="text-xs text-muted-foreground flex items-center justify-center gap-1">
-                            <MessageSquare className="h-3 w-3"/>
-                            Comments
-                        </div>
+
+                    {/* CTA */}
+                    <div style={{
+                        marginTop: 'auto',
+                        paddingTop: 14,
+                        fontFamily: '"IM Fell English SC", serif',
+                        letterSpacing: '0.2em',
+                        fontSize: 10,
+                        color: 'var(--gold-deep)',
+                        textAlign: 'center',
+                    }}>
+                        — {tUi('viewDossier')} —
                     </div>
-                </div>
-                <Link href={`/researchers/${researcher.id}`}>
-                    <Button variant="outline" className="w-full">
-                        {t('viewProfile')}
-                    </Button>
-                </Link>
-            </CardContent>
-        </Card>
+                </TarotCard>
+            </Link>
+        </div>
     )
 }

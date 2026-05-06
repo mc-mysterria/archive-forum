@@ -20,9 +20,9 @@ export default async function LocaleLayout({
   return (
     <Providers>
       <NextIntlClientProvider messages={messages}>
-        <div className="flex min-h-screen flex-col">
+        <div style={{ display: 'flex', minHeight: '100vh', flexDirection: 'column', position: 'relative', zIndex: 1 }}>
           <HeaderServer locale={locale} />
-          <main className="flex-1">{children}</main>
+          <main style={{ flex: 1 }}>{children}</main>
           <Footer />
         </div>
         <Toaster />

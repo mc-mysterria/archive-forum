@@ -24,6 +24,35 @@
         --input: 214.3 31.8% 91.4%;
         --ring: 263 70% 50%;
         --radius: 0.5rem;
+
+        /* ── Tarot design tokens ── */
+        --velvet:    #0e0b12;
+        --velvet-2:  #16121b;
+        --velvet-3:  #1f1a26;
+        --paper:     #f0e6cf;
+        --paper-2:   #e3d4af;
+        --ink:       #1a1410;
+        --ink-2:     #3c2f24;
+        --gold:      #c9a653;
+        --gold-soft: #d9b76a;
+        --gold-deep: #8b6f2a;
+        --gold-glow: #f0d68a;
+        --line:      rgba(217, 183, 106, 0.35);
+        --line-soft: rgba(217, 183, 106, 0.18);
+
+        /* ── Pathway colours ── */
+        --p-demoness:  #c14a3a;
+        --p-door:      #d6a23a;
+        --p-fortune:   #6fa04a;
+        --p-priest:    #b85070;
+        --p-tyrant:    #4a6fb3;
+        --p-error:     #8a5cc4;
+        --p-sun:       #e09a2e;
+        --p-visionary: #4a9aae;
+        --p-paragon:   #c9a653;
+        --p-twilight:  #8a9ab8;
+        --p-hermit:    #6a8a6a;
+        --p-chained:   #8a8a8a;
     }
 
     .dark {
@@ -52,8 +81,290 @@
 @layer base {
     * {
         @apply border-border;
+        box-sizing: border-box;
     }
-    body {
-        @apply bg-background text-foreground;
+    html, body {
+        margin: 0;
+        padding: 0;
+        background: var(--velvet);
+        color: #e9dfc3;
+        font-family: "EB Garamond", "Cormorant Garamond", Georgia, serif;
+    }
+}
+
+/* ── Starfield background ── */
+body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    background:
+        radial-gradient(ellipse at 15% 20%, rgba(217, 183, 106, 0.06), transparent 50%),
+        radial-gradient(ellipse at 85% 80%, rgba(217, 183, 106, 0.05), transparent 50%),
+        radial-gradient(circle at 50% 50%, transparent 0, var(--velvet) 70%),
+        url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><g fill='%23d9b76a' opacity='0.18'><circle cx='30' cy='40' r='0.8'/><circle cx='160' cy='30' r='0.5'/><circle cx='80' cy='110' r='0.6'/><circle cx='180' cy='150' r='0.7'/><circle cx='20' cy='170' r='0.4'/><circle cx='110' cy='180' r='0.5'/><circle cx='140' cy='90' r='0.4'/><circle cx='60' cy='60' r='0.3'/></g></svg>");
+    background-size: auto, auto, auto, 200px 200px;
+}
+
+/* ── App shell ── */
+#__next, main { position: relative; z-index: 1; }
+
+/* ── Tarot card primitive ── */
+@layer components {
+    .tarot-card {
+        position: relative;
+        background: var(--paper);
+        border-radius: 6px;
+        color: var(--ink);
+        /* rotation driven by --tc-rot so CSS hover can override inline style */
+        transform: rotate(var(--tc-rot, 0deg));
+        box-shadow:
+            0 20px 40px -16px rgba(0, 0, 0, 0.65),
+            0 4px 0 -2px rgba(0, 0, 0, 0.35),
+            inset 0 0 0 1px var(--gold-deep),
+            inset 0 0 0 6px var(--paper),
+            inset 0 0 0 7px var(--gold);
+        overflow: hidden;
+        /* GPU-only props → smooth 60 fps */
+        will-change: transform, box-shadow;
+        backface-visibility: hidden;
+        transition: transform 0.35s cubic-bezier(0.2, 0.7, 0.3, 1),
+                    box-shadow 0.35s cubic-bezier(0.2, 0.7, 0.3, 1);
+    }
+    .tarot-card::before {
+        content: "";
+        position: absolute;
+        inset: 14px;
+        border-radius: 3px;
+        border: 1px solid var(--gold-deep);
+        pointer-events: none;
+        z-index: 2;
+    }
+    .tarot-card::after {
+        content: "";
+        position: absolute;
+        inset: 18px;
+        border-radius: 2px;
+        border: 1px dashed rgba(139, 111, 42, 0.4);
+        pointer-events: none;
+        z-index: 2;
+    }
+    .tarot-card .tc-corner {
+        position: absolute;
+        width: 16px;
+        height: 16px;
+        border: 1px solid var(--gold-deep);
+        z-index: 3;
+    }
+    .tarot-card .tc-corner.tl { top: 20px; left: 20px; border-right: none; border-bottom: none; }
+    .tarot-card .tc-corner.tr { top: 20px; right: 20px; border-left: none; border-bottom: none; }
+    .tarot-card .tc-corner.bl { bottom: 20px; left: 20px; border-right: none; border-top: none; }
+    .tarot-card .tc-corner.br { bottom: 20px; right: 20px; border-left: none; border-top: none; }
+
+    /* hover wrapper: parent hover lifts + unrotates the inner card */
+    .tc-hover-wrap:hover .tarot-card {
+        transform: translateY(-8px) rotate(0deg);
+        box-shadow:
+            0 40px 70px -16px rgba(0, 0, 0, 0.8),
+            0 4px 0 -2px rgba(0, 0, 0, 0.35),
+            inset 0 0 0 1px var(--gold-deep),
+            inset 0 0 0 6px var(--paper),
+            inset 0 0 0 7px var(--gold-soft),
+            0 0 50px rgba(217, 183, 106, 0.22);
+    }
+
+    /* ── Typography helpers ── */
+    .font-fell { font-family: "IM Fell English", "Cormorant Garamond", serif; }
+    .font-fell-sc { font-family: "IM Fell English SC", "EB Garamond", serif; }
+    .font-garamond { font-family: "EB Garamond", "Cormorant Garamond", Georgia, serif; }
+
+    /* ── Velvet input style ── */
+    .velvet-input {
+        width: 100%;
+        padding: 12px 16px;
+        background: var(--velvet-2);
+        border: 1px solid var(--line);
+        color: #f0e6cf;
+        font-family: "EB Garamond", serif;
+        font-size: 17px;
+        outline: none;
+        transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .velvet-input:focus {
+        border-color: var(--gold-soft);
+        box-shadow: 0 0 18px rgba(217, 183, 106, 0.15);
+    }
+    .velvet-input::placeholder { color: #7a7058; }
+
+    /* ── Velvet button styles ── */
+    .btn-velvet {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 9px 18px;
+        border-radius: 2px;
+        font-family: "IM Fell English SC", serif;
+        letter-spacing: 0.12em;
+        font-size: 12px;
+        cursor: pointer;
+        transition: all 0.18s;
+        text-decoration: none;
+        border: 1px solid var(--gold-soft);
+        color: var(--gold-soft);
+        background: transparent;
+    }
+    .btn-velvet:hover { background: rgba(217, 183, 106, 0.08); }
+    .btn-velvet.primary {
+        background: linear-gradient(180deg, var(--gold-soft), var(--gold));
+        color: var(--velvet);
+        border-color: var(--gold);
+        box-shadow: 0 1px 0 var(--gold-deep), 0 0 18px rgba(217, 183, 106, 0.18);
+    }
+    .btn-velvet.primary:hover {
+        box-shadow: 0 1px 0 var(--gold-deep), 0 0 26px rgba(217, 183, 106, 0.32);
+    }
+    .btn-velvet.ghost {
+        border-color: rgba(217, 183, 106, 0.4);
+        color: #a89b78;
+    }
+    .btn-velvet.ghost:hover { color: var(--gold-soft); border-color: var(--gold-soft); }
+
+    /* ── Ornament rules ── */
+    .orn-rule {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 14px;
+        color: var(--gold-soft);
+        font-family: "IM Fell English", serif;
+    }
+    .orn-rule::before, .orn-rule::after {
+        content: "";
+        flex: 1;
+        max-width: 200px;
+        height: 1px;
+        background: var(--line);
+    }
+
+    /* ── Sigil (ringed glyph) ── */
+    .sigil-ring {
+        border-radius: 50%;
+        border: 1px solid currentColor;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-family: "IM Fell English", serif;
+        line-height: 1;
+        flex-shrink: 0;
+    }
+    .sigil-ring.sm  { width: 24px; height: 24px; font-size: 13px; }
+    .sigil-ring.md  { width: 28px; height: 28px; font-size: 14px; }
+    .sigil-ring.lg  { width: 48px; height: 48px; font-size: 22px; border-width: 1.5px; }
+    .sigil-ring.xl  { width: 96px; height: 96px; font-size: 48px; border-width: 2px; }
+    .sigil-ring.xxl { width: 140px; height: 140px; font-size: 72px; border-width: 2px; }
+
+    /* ── Sequence pip row ── */
+    .pip-row { display: flex; gap: 5px; align-items: center; }
+    .pip {
+        width: 8px; height: 8px;
+        border-radius: 50%;
+        border: 1px solid var(--gold-deep);
+    }
+    .pip.on { background: var(--gold-deep); }
+
+    /* ── Field label (detail page) ── */
+    .field-label {
+        font-family: "IM Fell English SC", serif;
+        letter-spacing: 0.32em;
+        font-size: 11px;
+        color: var(--gold-soft);
+        margin-bottom: 12px;
+    }
+    .lore-text {
+        font-family: "EB Garamond", serif;
+        font-size: 18px;
+        line-height: 1.6;
+        color: #d6cca4;
+    }
+    .lore-text::first-letter {
+        font-family: "IM Fell English SC", serif;
+        font-size: 62px;
+        line-height: 0.85;
+        float: left;
+        padding: 6px 12px 0 0;
+        color: var(--gold-soft);
+    }
+
+    /* ── Sequence number pills ── */
+    .seq-num {
+        width: 30px; height: 30px;
+        border-radius: 50%;
+        border: 1px solid var(--gold-deep);
+        color: var(--gold-soft);
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-family: "IM Fell English", serif;
+        font-size: 14px;
+        cursor: pointer;
+        transition: all 0.15s;
+        background: transparent;
+    }
+    .seq-num:hover { border-color: var(--gold-soft); color: var(--gold-glow); }
+    .seq-num.active { background: var(--gold-soft); color: var(--velvet); border-color: var(--gold-soft); }
+
+    /* ── Nav link hover ── */
+.topbar-nav-link:hover {
+    color: var(--gold-soft) !important;
+    border-color: var(--gold-soft) !important;
+}
+
+/* ── Footer link ── */
+.footer-link {
+    font-family: "IM Fell English SC", serif;
+    letter-spacing: 0.14em;
+    font-size: 11px;
+    color: #7a7058;
+    text-decoration: none;
+    transition: color 0.2s;
+}
+.footer-link:hover { color: var(--gold-soft); }
+
+/* ── Glyph picker ── */
+    .glyph-opt {
+        width: 44px; height: 44px;
+        border-radius: 50%;
+        border: 1px solid var(--gold-deep);
+        color: var(--gold-soft);
+        background: rgba(255, 255, 255, 0.02);
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-family: "IM Fell English", serif;
+        font-size: 20px;
+        cursor: pointer;
+        transition: all 0.15s;
+    }
+    .glyph-opt:hover { color: var(--gold-glow); border-color: var(--gold-soft); }
+    .glyph-opt.active { background: var(--gold-soft); color: var(--velvet); border-color: var(--gold-soft); }
+
+    /* ── Stepper dot ── */
+    .step-dot {
+        width: 32px; height: 32px;
+        border-radius: 50%;
+        border: 1px solid var(--gold-deep);
+        color: var(--gold-soft);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-family: "IM Fell English", serif;
+        font-size: 14px;
+    }
+    .step-dot.active {
+        background: var(--gold-soft);
+        color: var(--velvet);
+        border-color: var(--gold-soft);
+        box-shadow: 0 0 18px rgba(217, 183, 106, 0.35);
     }
 }

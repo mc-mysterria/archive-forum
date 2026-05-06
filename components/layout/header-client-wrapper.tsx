@@ -127,10 +127,10 @@ export function HeaderClientWrapper() {
                 // Authenticated user menu
                 <Sheet>
                     <SheetTrigger asChild>
-                        <Button variant="ghost" size="sm">
-                            <User className="h-4 w-4 mr-2" />
-                            <span className="hidden md:inline">{user.username}</span>
-                        </Button>
+                        <button className="btn-velvet ghost">
+                            <User className="h-4 w-4" />
+                            <span>{user.username}</span>
+                        </button>
                     </SheetTrigger>
                     <SheetContent side="right" className="w-80">
                         <SheetHeader>
@@ -197,14 +197,13 @@ export function HeaderClientWrapper() {
                 </Sheet>
             ) : (
                 // Login button for unauthenticated users
-                <Button
-                    variant="outline"
-                    size="sm"
+                <button
+                    className="btn-velvet ghost"
                     onClick={handleLogin}
                 >
-                    <LogIn className="h-4 w-4 mr-2" />
-                    <span className="hidden md:inline">{tAuth('login')}</span>
-                </Button>
+                    <LogIn className="h-4 w-4" />
+                    <span>{tAuth('login')}</span>
+                </button>
             )}
         </>
     )

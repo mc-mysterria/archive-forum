@@ -1,13 +1,9 @@
 import Link from 'next/link'
-import { Button } from '@/components/ui/button'
-import { BookOpen, Compass, Package, Users, Plus } from 'lucide-react'
 import { getTranslations } from 'next-intl/server'
-import { HeaderNavigation } from './header-navigation'
-import { MobileNavigation } from './mobile-navigation'
 import { HeaderClientWrapper } from './header-client-wrapper'
 
 interface HeaderServerProps {
-  locale: string
+    locale: string
 }
 
 export async function HeaderServer({ locale }: HeaderServerProps) {
@@ -17,40 +13,87 @@ export async function HeaderServer({ locale }: HeaderServerProps) {
         return locale && locale !== 'en' ? `/${locale}${href}` : href
     }
 
-    const navigation = [
-        { name: t('items'), href: getLocalizedHref('/items'), icon: 'BookOpen' as const },
-        { name: t('pathways'), href: getLocalizedHref('/pathways'), icon: 'Compass' as const },
-        { name: t('types'), href: getLocalizedHref('/types'), icon: 'Package' as const },
-        { name: t('researchers'), href: getLocalizedHref('/researchers'), icon: 'Users' as const },
+    const navLinks = [
+        { label: t('items'),      href: getLocalizedHref('/items') },
+        { label: t('pathways'),   href: getLocalizedHref('/pathways') },
+        { label: t('researchers'),href: getLocalizedHref('/researchers') },
     ]
 
     return (
-        <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-            <div className="container mx-auto px-4">
-                <div className="flex h-16 items-center justify-between">
-                    <div className="flex items-center gap-2 md:gap-8">
-                        <MobileNavigation navigation={navigation} />
-                        <Link href={getLocalizedHref('/')} className="flex items-center gap-2">
-                            <BookOpen className="h-6 w-6 text-primary" />
-                            <span className="font-bold text-lg md:text-xl">{t('mysterria')}</span>
-                        </Link>
-
-                        <HeaderNavigation navigation={navigation} />
-                    </div>
-
-                    <div className="flex items-center gap-2 md:gap-4">
-                        <div className="hidden sm:flex sm:items-center sm:gap-2 md:gap-4">
-                            <HeaderClientWrapper />
-                        </div>
-
-                        <Link href={getLocalizedHref('/items/new')}>
-                            <Button size="sm">
-                                <Plus className="h-4 w-4 md:mr-2" />
-                                <span className="hidden md:inline">{t('addItem')}</span>
-                            </Button>
-                        </Link>
-                    </div>
+        <header style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            padding: '22px 56px',
+            borderBottom: '1px solid var(--line)',
+            position: 'sticky',
+            top: 0,
+            zIndex: 50,
+            background: 'var(--velvet)',
+            backdropFilter: 'blur(4px)',
+        }}>
+            {/* Brand */}
+            <Link href={getLocalizedHref('/')} style={{ display: 'flex', alignItems: 'center', gap: 14, textDecoration: 'none' }}>
+                <div style={{
+                    width: 42,
+                    height: 42,
+                    borderRadius: '50%',
+                    border: '1.5px solid var(--gold)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    background: 'radial-gradient(circle at 30% 30%, rgba(217,183,106,.25), transparent 60%), var(--velvet-2)',
+                    color: 'var(--gold-soft)',
+                    fontFamily: '"IM Fell English", serif',
+                    fontSize: 22,
+                    boxShadow: '0 0 0 1px var(--velvet) inset, 0 0 14px rgba(217,183,106,.18)',
+                    flexShrink: 0,
+                }}>
+                    ✦
                 </div>
+                <span style={{
+                    fontFamily: '"IM Fell English SC", serif',
+                    letterSpacing: '0.22em',
+                    fontSize: 18,
+                    color: 'var(--gold-soft)',
+                }}>
+                    MYSTERRIA
+                </span>
+            </Link>
+
+            {/* Nav */}
+            <nav style={{ display: 'flex', gap: 26 }}>
+                {navLinks.map((link) => (
+                    <Link
+                        key={link.href}
+                        href={link.href}
+                        style={{
+                            color: '#a89b78',
+                            fontFamily: '"IM Fell English SC", serif',
+                            letterSpacing: '0.14em',
+                            fontSize: 13,
+                            textDecoration: 'none',
+                            paddingBottom: 4,
+                            borderBottom: '1px solid transparent',
+                            transition: 'color 0.2s, border-color 0.2s',
+                        }}
+                        className="topbar-nav-link"
+                    >
+                        {link.label}
+                    </Link>
+                ))}
+            </nav>
+
+            {/* Actions */}
+            <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
+                <HeaderClientWrapper />
+                <Link
+                    href={getLocalizedHref('/items/new')}
+                    className="btn-velvet primary"
+                    style={{ fontFamily: '"IM Fell English SC", serif' }}
+                >
+                    + {t('addItem')}
+                </Link>
             </div>
         </header>
     )

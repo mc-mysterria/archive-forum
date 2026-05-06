@@ -1,31 +1,26 @@
 export function Footer() {
     return (
-        <footer className="border-t">
-            <div className="container mx-auto px-4 py-6">
-                <div className="flex flex-col md:flex-row justify-between items-center gap-4">
-                    <p className="text-sm text-muted-foreground">
-                        © 2025 Mysterria Archive. A Lord of The Mysteries community project.
-                    </p>
-                    <div className="flex gap-6">
+        <footer style={{ borderTop: '1px solid var(--line)', position: 'relative', zIndex: 1 }}>
+            <div style={{ padding: '22px 56px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <p style={{
+                    fontFamily: '"IM Fell English SC", serif',
+                    letterSpacing: '0.16em',
+                    fontSize: 10,
+                    color: '#7a7058',
+                    margin: 0,
+                }}>
+                    © MMXXV Mysterria Archive · A Lord of The Mysteries community project
+                </p>
+                <div style={{ display: 'flex', gap: 24 }}>
+                    {['ikeepcalm', 'Esfer', 'Djecka'].map(name => (
                         <a
+                            key={name}
                             href="https://api.mysterria.net/archive/mvc"
-                            className="text-sm text-muted-foreground hover:text-primary"
+                            className="footer-link"
                         >
-                            ikeepcalm
+                            {name}
                         </a>
-                        <a
-                            href="https://api.mysterria.net/archive/mvc"
-                            className="text-sm text-muted-foreground hover:text-primary"
-                        >
-                            Esfer
-                        </a>
-                        <a
-                            href="https://api.mysterria.net/archive/mvc"
-                            className="text-sm text-muted-foreground hover:text-primary"
-                        >
-                            Djecka
-                        </a>
-                    </div>
+                    ))}
                 </div>
             </div>
         </footer>
