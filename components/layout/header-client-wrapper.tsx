@@ -17,7 +17,7 @@ import {
 } from '@/components/ui/sheet'
 
 export function HeaderClientWrapper() {
-    const { isAuthenticated, user, logout, canWrite, canModerate } = useAuth()
+    const { isAuthenticated, user, logout, setAuth, canWrite, canModerate } = useAuth()
     const { researcher } = useResearcherStore()
     const router = useRouter()
     const pathname = usePathname()
@@ -55,34 +55,35 @@ export function HeaderClientWrapper() {
             return
         }
 
-        // Listen for authentication success
+        // Listen for authentication success from www.mysterria.net
         const handleMessage = (event: MessageEvent) => {
-            // Verify origin for security
-            if (event.origin !== (process.env.NEXT_PUBLIC_ARCHIVE_URL || 'https://archive.mysterria.net')) {
+            if (event.origin !== (process.env.NEXT_PUBLIC_AUTH_URL || 'https://www.mysterria.net')) {
                 return
             }
 
-            if (event.data.type === 'MYSTERRIA_AUTH_SUCCESS') {
-                // Close the main mysterria.net popup (it might still be open)
+            if (event.data?.type === 'AUTH_SUCCESS') {
                 popup.close()
 
-                // Also try to close any other auth-related popups
-                try {
-                    // Find and close any mysterria.net login windows
-                    const allWindows = [popup]
-                    allWindows.forEach(win => {
-                        if (win && !win.closed) {
-                            win.close()
+                const token = event.data.token
+                if (token) {
+                    try {
+                        const payload = JSON.parse(atob(token.split('.')[1]))
+                        const user = {
+                            id: payload.sub,
+                            username: payload.username || `User-${payload.sub.slice(0, 8)}`,
+                            email: payload.email || undefined,
+                            permissions: payload.permissions || [],
                         }
-                    })
-                } catch (e) {
-                    console.log('Could not close additional popups:', e)
+                        setAuth(token, user)
+                        localStorage.setItem('access_token', token)
+                    } catch (e) {
+                        console.error('Token decode error:', e)
+                    }
                 }
 
-                // Reload to update auth state
-                window.location.reload()
                 window.removeEventListener('message', handleMessage)
-            } else if (event.data.type === 'MYSTERRIA_AUTH_ERROR') {
+                window.location.reload()
+            } else if (event.data?.type === 'AUTH_ERROR') {
                 popup.close()
                 alert(event.data.error || tAuth('authFailed'))
                 window.removeEventListener('message', handleMessage)
@@ -99,23 +100,6 @@ export function HeaderClientWrapper() {
             }
         }, 1000)
 
-        // Also monitor for successful auth without popup closing (nested OAuth scenario)
-        const checkAuthSuccess = setInterval(() => {
-            const token = localStorage.getItem('access_token')
-            if (token && !popup.closed) {
-                // Authentication succeeded but popup is still open
-                // This happens with nested OAuth - close the popup manually
-                popup.close()
-                clearInterval(checkAuthSuccess)
-                window.location.reload()
-                window.removeEventListener('message', handleMessage)
-            }
-        }, 1000)
-
-        // Clean up the auth success checker after 2 minutes
-        setTimeout(() => {
-            clearInterval(checkAuthSuccess)
-        }, 120000)
     }
 
     return (

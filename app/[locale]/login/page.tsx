@@ -3,6 +3,7 @@
 import { useEffect } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useTranslations } from 'next-intl'
+import { useAuth } from '@/lib/hooks/use-auth'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { LogIn, ArrowRight } from 'lucide-react'
@@ -11,6 +12,7 @@ export default function LoginPage() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const t = useTranslations('auth')
+  const { setAuth } = useAuth()
 
   const handleLogin = () => {
     const authUrl = process.env.NEXT_PUBLIC_AUTH_URL || 'https://www.mysterria.net'
@@ -33,24 +35,36 @@ export default function LoginPage() {
       return
     }
 
-    // Listen for authentication success
+    // Listen for authentication success from www.mysterria.net
     const handleMessage = (event: MessageEvent) => {
-      // Verify origin for security
-      if (event.origin !== (process.env.NEXT_PUBLIC_ARCHIVE_URL || 'https://archive.mysterria.net')) {
+      if (event.origin !== (process.env.NEXT_PUBLIC_AUTH_URL || 'https://www.mysterria.net')) {
         return
       }
 
-      if (event.data.type === 'MYSTERRIA_AUTH_SUCCESS') {
-        // Close popup
+      if (event.data?.type === 'AUTH_SUCCESS') {
         popup.close()
 
-        // Redirect parent window to return URL
-        router.replace(event.data.returnUrl || '/')
+        const token = event.data.token
+        if (token) {
+          try {
+            const payload = JSON.parse(atob(token.split('.')[1]))
+            const user = {
+              id: payload.sub,
+              username: payload.username || `User-${payload.sub.slice(0, 8)}`,
+              email: payload.email || undefined,
+              permissions: payload.permissions || [],
+            }
+            setAuth(token, user)
+            localStorage.setItem('access_token', token)
+          } catch (e) {
+            console.error('Token decode error:', e)
+          }
+        }
 
-        // Clean up listener
+        const returnUrl = searchParams.get('returnUrl') || '/'
         window.removeEventListener('message', handleMessage)
-      } else if (event.data.type === 'MYSTERRIA_AUTH_ERROR') {
-        // Close popup and show error
+        router.replace(returnUrl)
+      } else if (event.data?.type === 'AUTH_ERROR') {
         popup.close()
         alert(event.data.error || t('authFailed'))
         window.removeEventListener('message', handleMessage)
