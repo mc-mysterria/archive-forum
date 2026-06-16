@@ -10,14 +10,9 @@ const nextConfig = {
     images: {
         domains: ["localhost"],
     },
-    async rewrites() {
-        return [
-            {
-                source: '/api/:path*',
-                destination: 'https://api.mysterria.net/archive/:path*',
-            },
-        ];
-    },
+    // No rewrites() here on purpose: the client calls the backend directly
+    // (see lib/api/client.ts / NEXT_PUBLIC_API_URL) so API traffic doesn't
+    // proxy through — and get double-billed as — Vercel requests.
     webpack: (config) => {
         config.resolve.alias["@"] = path.resolve(__dirname);
         return config;

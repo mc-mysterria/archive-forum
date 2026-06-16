@@ -1,6 +1,8 @@
 import { useAuthStore } from '@/lib/store/auth-store'
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || '/api'
+// Calls the backend directly so requests never round-trip through Vercel's
+// rewrite proxy (which was double-billing every API call as Vercel traffic).
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'https://api.mysterria.net/archive'
 
 // Token getter function that works in both client and server contexts
 function getToken(): string | null {

@@ -50,7 +50,7 @@ The application manages several interconnected entities:
 
 ### API Integration
 - Uses a custom `fetcher` utility in `lib/api/client.ts`
-- API proxied through Next.js rewrite rules to `localhost:8080`
+- Client calls the backend directly via `NEXT_PUBLIC_API_URL` (defaults to `https://api.mysterria.net/archive`) — there is no Next.js rewrite proxy, so API traffic doesn't count against Vercel's request/function quota
 - All API calls wrapped in TanStack Query hooks for caching and state management
 
 ### Styling System
